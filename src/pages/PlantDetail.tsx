@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useLocation, Link } from 'react-router-dom';
 import { ArrowLeft, Droplets, Sun, Ruler } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import PlantCard from '@/components/PlantCard';
 import ExchangeRequest from '@/components/ExchangeRequest';
 import { mockPlants, mockUsers } from '@/data/mockData';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
