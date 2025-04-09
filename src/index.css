@@ -76,7 +76,8 @@
   box-shadow: 0 5px 15px rgba(0,0,0,0.1);
   transition: all 0.3s ease;
   cursor: pointer;
-  max-height: 200px;
+  min-height: 250px; /* Увеличили минимальную высоту */
+  max-height: 280px; /* Увеличили максимальную высоту */
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: auto 1fr auto;
@@ -117,7 +118,7 @@
   grid-row: 2;
   display: flex;
   flex-direction: row;
-  gap: 20px;
+  gap: 10px; /* Уменьшили отступ между метками */
   margin-bottom: 15px;
   flex-wrap: wrap;
   max-width: calc(100% - 220px);
@@ -128,10 +129,11 @@
 .sun-demand-attribute,
 .size-attribute,
 .type-attribute {
-  padding: 4px 6px;
+  padding: 3px 5px; /* Уменьшили внутренние отступы */
   border-radius: 6px;
-  font-size: 0.9em;
+  font-size: 0.85em; /* Уменьшили размер шрифта */
   white-space: nowrap;
+  margin-bottom: 5px; /* Добавили нижний отступ для лучшего распределения при переносе строк */
 }
 
 .card-plant-attribute {
