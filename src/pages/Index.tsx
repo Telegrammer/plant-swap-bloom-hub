@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Leaf, RefreshCw, Users } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import PlantCard from '@/components/PlantCard';
+import ExchangeStatistics from '@/components/ExchangeStatistics';
 import { mockPlants } from '@/data/mockData';
 import { useToast } from '@/hooks/use-toast';
 
@@ -60,6 +61,12 @@ const Index = () => {
             </Link>
           </div>
         </div>
+        
+        {/* Statistics Section */}
+        <section className="mt-16">
+          <h2 className="section-title">Статистика и популярные растения</h2>
+          <ExchangeStatistics />
+        </section>
         
         <section className="mt-16">
           <div className="flex justify-between items-center mb-6">
