@@ -1,19 +1,28 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { CalendarIcon, MapPin, Mail, Plus } from 'lucide-react';
+import { CalendarIcon, MapPin, Mail, Plus, Pencil, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import Navbar from '@/components/Navbar';
 import PlantCard from '@/components/PlantCard';
 import { mockUsers, mockPlants } from '@/data/mockData';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { AddPlantDialog } from '@/components/AddPlantDialog';
+import { DeletePlantDialog } from '@/components/DeletePlantDialog';
+import { useToast } from "@/hooks/use-toast";
 
 const Profile = () => {
   const { id } = useParams();
   const [user, setUser] = useState(null);
   const [userPlants, setUserPlants] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [deleteDialogState, setDeleteDialogState] = useState({ isOpen: false, plantId: null, plantName: '' });
+  const { toast } = useToast();
+  
+  const isOwnProfile = !id; // Если нет id, значит это профиль текущего пользователя
 
   useEffect(() => {
     // Имитация загрузки данных
@@ -44,6 +53,49 @@ const Profile = () => {
       setLoading(false);
     }, 500);
   }, [id]);
+
+  const handleAddPlant = (plantData) => {
+    const newPlant = {
+      id: Date.now(), // Генерируем временный ID
+      name: plantData.name,
+      description: plantData.description,
+      imageUrl: plantData.imageUrl,
+      waterDemand: plantData.waterDemand,
+      sunDemand: plantData.sunDemand,
+      size: plantData.size,
+      isIndoor: plantData.isIndoor,
+      types: plantData.types,
+      owner: user.name,
+    };
+
+    setUserPlants([...userPlants, newPlant]);
+    setIsAddDialogOpen(false);
+    
+    toast({
+      title: "Растение добавлено",
+      description: `${plantData.name} добавлено в вашу коллекцию`,
+    });
+  };
+
+  const handleOpenDeleteDialog = (plantId, plantName) => {
+    setDeleteDialogState({
+      isOpen: true,
+      plantId,
+      plantName
+    });
+  };
+
+  const handleDeletePlant = () => {
+    const updatedPlants = userPlants.filter(plant => plant.id !== deleteDialogState.plantId);
+    setUserPlants(updatedPlants);
+    
+    toast({
+      title: "Растение удалено",
+      description: `${deleteDialogState.plantName} удалено из вашей коллекции`,
+    });
+    
+    setDeleteDialogState({ isOpen: false, plantId: null, plantName: '' });
+  };
 
   if (loading) {
     return (
@@ -109,12 +161,39 @@ const Profile = () => {
         </div>
         
         <div className="mt-12">
-          <h2 className="section-title">Растения пользователя</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="section-title">Растения пользователя</h2>
+            
+            {isOwnProfile && (
+              <Button 
+                onClick={() => setIsAddDialogOpen(true)}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Добавить растение</span>
+              </Button>
+            )}
+          </div>
           
           {userPlants.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
               {userPlants.map((plant) => (
-                <PlantCard key={plant.id} plant={plant} />
+                <div key={plant.id} className="relative">
+                  <PlantCard plant={plant} />
+                  
+                  {isOwnProfile && (
+                    <div className="absolute top-4 left-4 z-10 flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="icon"
+                        className="bg-white opacity-80 hover:opacity-100"
+                        onClick={() => handleOpenDeleteDialog(plant.id, plant.name)}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           ) : (
@@ -129,17 +208,31 @@ const Profile = () => {
           )}
         </div>
         
-        {!id && (
+        {isOwnProfile && (
           <div className="fixed bottom-6 right-6">
-            <button
+            <Button
+              onClick={() => setIsAddDialogOpen(true)}
               className="bg-green-600 hover:bg-green-700 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
               title="Добавить новое растение"
             >
               <Plus className="h-6 w-6" />
-            </button>
+            </Button>
           </div>
         )}
       </main>
+
+      <AddPlantDialog 
+        isOpen={isAddDialogOpen}
+        onClose={() => setIsAddDialogOpen(false)}
+        onAddPlant={handleAddPlant}
+      />
+      
+      <DeletePlantDialog
+        isOpen={deleteDialogState.isOpen}
+        onClose={() => setDeleteDialogState({ isOpen: false, plantId: null, plantName: '' })}
+        onConfirm={handleDeletePlant}
+        plantName={deleteDialogState.plantName}
+      />
     </div>
   );
 };
