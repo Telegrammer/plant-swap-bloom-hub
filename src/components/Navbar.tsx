@@ -1,6 +1,6 @@
 
 import { Link } from 'react-router-dom';
-import { Search, User, Home, Leaf, RefreshCw } from 'lucide-react';
+import { Search, User, Home, Leaf, ArrowLeftRight } from 'lucide-react';
 
 const Navbar = () => {
   return (
@@ -21,7 +21,7 @@ const Navbar = () => {
             <span>Растения</span>
           </Link>
           <Link to="/exchanges" className="flex items-center gap-1 text-gray-700 hover:text-green-600 transition-colors">
-            <RefreshCw className="h-4 w-4" />
+            <ArrowLeftRight className="h-4 w-4" />
             <span>Обмены</span>
           </Link>
         </div>

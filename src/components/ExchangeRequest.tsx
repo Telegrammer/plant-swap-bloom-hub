@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { RefreshCw, Send } from 'lucide-react';
+import { ArrowLeftRight, Send } from 'lucide-react';
 
 interface ExchangeRequestProps {
   plantId: number;
@@ -28,7 +28,7 @@ const ExchangeRequest = ({ plantId, plantName, ownerId, ownerName }: ExchangeReq
     
     // В реальном приложении здесь будет API запрос
     setTimeout(() => {
-      toast.success('Запрос на обмен успешно отправлен!');
+      toast.success(`Запрос на обмен растения "${plantName}" успешно отправлен!`);
       setMessage('');
       setLoading(false);
     }, 1000);
@@ -37,12 +37,12 @@ const ExchangeRequest = ({ plantId, plantName, ownerId, ownerName }: ExchangeReq
   return (
     <div className="bg-green-50 rounded-lg p-6 shadow-sm border border-green-100">
       <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
-        <RefreshCw className="h-5 w-5 text-green-600" />
+        <ArrowLeftRight className="h-5 w-5 text-green-600" />
         Запросить обмен
       </h3>
       
       <p className="text-gray-600 mb-4">
-        Отправьте сообщение владельцу растения <strong>{plantName}</strong> с предложением об обмене.
+        Отправьте сообщение пользователю <strong>{ownerName}</strong> с предложением об обмене растения <strong>{plantName}</strong>.
       </p>
       
       <form onSubmit={handleSubmit}>

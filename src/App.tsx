@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Plants from "./pages/Plants";
 import PlantDetail from "./pages/PlantDetail";
 import Profile from "./pages/Profile";
+import Exchanges from "./pages/Exchanges";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/plants/:id" element={<PlantDetail />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile/:id" element={<Profile />} />
+          <Route path="/exchanges" element={<Exchanges />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
