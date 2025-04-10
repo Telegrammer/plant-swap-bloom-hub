@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { 
   ChartContainer, 
@@ -127,17 +128,19 @@ const ExchangeStatistics = () => {
                 }
               }}
             >
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis fontSize={12} tickLine={false} axisLine={false} />
-                  <Bar dataKey="completed" fill="var(--color-completed)" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="pending" fill="var(--color-pending)" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="canceled" fill="var(--color-canceled)" radius={[4, 4, 0, 0]} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                </BarChart>
-              </ResponsiveContainer>
-              <ChartLegend content={<ChartLegendContent />} />
+              <div>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData}>
+                    <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis fontSize={12} tickLine={false} axisLine={false} />
+                    <Bar dataKey="completed" fill="var(--color-completed)" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="pending" fill="var(--color-pending)" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="canceled" fill="var(--color-canceled)" radius={[4, 4, 0, 0]} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                  </BarChart>
+                </ResponsiveContainer>
+                <ChartLegend content={<ChartLegendContent />} />
+              </div>
             </ChartContainer>
           </div>
         </CardContent>
