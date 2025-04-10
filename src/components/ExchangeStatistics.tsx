@@ -11,13 +11,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
 import { Leaf, TrendingUp, Sprout } from "lucide-react";
-import { mockExchanges } from '@/data/mockExchanges';
-import { ExchangePlant } from '@/types/exchange';
+import { getExchanges } from '@/api/exchanges';
+import { Exchange, ExchangePlant } from '@/types/exchange';
+import { useToast } from "@/hooks/use-toast";
 
 interface PlantPopularity {
   name: string;
   count: number;
-  direction: "sent" | "received";
   imageUrl: string;
 }
 
@@ -29,9 +29,40 @@ const ExchangeStatistics = () => {
     pending: 0,
     canceled: 0
   });
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
   
   useEffect(() => {
-    // Calculate plant popularity regardless of direction
+    async function fetchExchangeData() {
+      try {
+        setLoading(true);
+        // В реальном API запросе используем getExchanges()
+        // Сейчас для демонстрации используем импортированные данные из mockExchanges
+        // const exchanges = await getExchanges();
+        
+        // Временное решение - импортируем данные напрямую
+        // Этот код будет заменен на реальный API-вызов
+        const { mockExchanges } = await import('@/data/mockExchanges');
+        const exchanges = mockExchanges;
+        
+        processExchangeData(exchanges);
+      } catch (error) {
+        console.error("Ошибка при загрузке данных обменов:", error);
+        toast({
+          title: "Ошибка загрузки",
+          description: "Не удалось загрузить статистику обменов",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchExchangeData();
+  }, [toast]);
+
+  const processExchangeData = (exchanges: Exchange[]) => {
+    // Подсчет растений по популярности
     const plantCountMap = new Map<string, { name: string, count: number, imageUrl: string }>();
     const monthStats: Record<string, { completed: number, pending: number, canceled: number }> = {};
     
@@ -44,7 +75,7 @@ const ExchangeStatistics = () => {
     
     const stats = { completed: 0, pending: 0, canceled: 0 };
     
-    mockExchanges.forEach(exchange => {
+    exchanges.forEach(exchange => {
       stats[exchange.status]++;
       
       const exchangeDate = new Date(exchange.startDate);
@@ -53,7 +84,7 @@ const ExchangeStatistics = () => {
         monthStats[monthName][exchange.status]++;
       }
       
-      // Count plants regardless of direction
+      // Подсчет растений, независимо от направления
       const processPlant = (plant: ExchangePlant) => {
         if (!plantCountMap.has(plant.name)) {
           plantCountMap.set(plant.name, {
@@ -76,19 +107,36 @@ const ExchangeStatistics = () => {
       canceled: data.canceled
     }));
     
-    // Convert to array and sort by count
+    // Преобразуем в массив и сортируем по количеству
     const sortedPlants = Array.from(plantCountMap.values())
       .sort((a, b) => b.count - a.count)
-      .slice(0, 5)
-      .map(plant => ({
-        ...plant,
-        direction: "sent" as "sent" | "received" // Add direction for type compatibility, although we won't display it
-      }));
+      .slice(0, 5);
     
     setPopularPlants(sortedPlants);
     setChartData(chartDataArray);
     setTotalStats(stats);
-  }, []);
+  };
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-center h-[300px]">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-center h-[300px]">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -117,34 +165,36 @@ const ExchangeStatistics = () => {
             </div>
             
             <div className="h-[200px]">
-              <ChartContainer 
-                className="h-[200px]" 
-                config={{
-                  completed: {
-                    theme: { light: '#22c55e', dark: '#22c55e' },
-                    label: 'Завершено'
-                  },
-                  pending: {
-                    theme: { light: '#eab308', dark: '#eab308' },
-                    label: 'В процессе'
-                  },
-                  canceled: {
-                    theme: { light: '#ef4444', dark: '#ef4444' },
-                    label: 'Отменено'
-                  }
-                }}
-              >
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData}>
-                    <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis fontSize={12} tickLine={false} axisLine={false} />
-                    <Bar dataKey="completed" fill="var(--color-completed)" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="pending" fill="var(--color-pending)" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="canceled" fill="var(--color-canceled)" radius={[4, 4, 0, 0]} />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </ChartContainer>
+              <div>
+                <ChartContainer 
+                  className="h-[200px]" 
+                  config={{
+                    completed: {
+                      theme: { light: '#22c55e', dark: '#22c55e' },
+                      label: 'Завершено'
+                    },
+                    pending: {
+                      theme: { light: '#eab308', dark: '#eab308' },
+                      label: 'В процессе'
+                    },
+                    canceled: {
+                      theme: { light: '#ef4444', dark: '#ef4444' },
+                      label: 'Отменено'
+                    }
+                  }}
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData}>
+                      <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis fontSize={12} tickLine={false} axisLine={false} />
+                      <Bar dataKey="completed" fill="var(--color-completed)" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="pending" fill="var(--color-pending)" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="canceled" fill="var(--color-canceled)" radius={[4, 4, 0, 0]} />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </div>
             </div>
           </div>
         </CardContent>

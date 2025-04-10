@@ -1,22 +1,22 @@
-
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { CalendarIcon, MapPin, Mail, Plus, Pencil, Trash2 } from 'lucide-react';
+import { CalendarIcon, MapPin, Mail, Plus, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import Navbar from '@/components/Navbar';
 import PlantCard from '@/components/PlantCard';
-import { mockUsers, mockPlants } from '@/data/mockData';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { AddPlantDialog } from '@/components/AddPlantDialog';
 import { DeletePlantDialog } from '@/components/DeletePlantDialog';
 import { useToast } from "@/hooks/use-toast";
+import { getUserById, getCurrentUser } from '@/api/users';
+import { getUserPlants, createPlant, deletePlant, Plant } from '@/api/plants';
 
 const Profile = () => {
   const { id } = useParams();
   const [user, setUser] = useState(null);
-  const [userPlants, setUserPlants] = useState([]);
+  const [userPlants, setUserPlants] = useState<Plant[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [deleteDialogState, setDeleteDialogState] = useState({ isOpen: false, plantId: null, plantName: '' });
@@ -25,56 +25,82 @@ const Profile = () => {
   const isOwnProfile = !id; // Если нет id, значит это профиль текущего пользователя
 
   useEffect(() => {
-    // Имитация загрузки данных
-    setTimeout(() => {
-      // Если есть id, ищем конкретного пользователя
-      if (id) {
-        const foundUser = mockUsers.find(u => u.id === parseInt(id));
-        if (foundUser) {
-          setUser(foundUser);
-          
-          // Находим растения пользователя
-          const plants = mockPlants.filter(plant => 
-            plant.owner === foundUser.name
-          );
-          setUserPlants(plants);
-        }
-      } else {
-        // Если нет id, берем первого пользователя (в реальном приложении здесь будет текущий авторизованный юзер)
-        setUser(mockUsers[0]);
+    const fetchUserData = async () => {
+      try {
+        setLoading(true);
+        let userData;
+        let plantData;
         
-        // Находим растения пользователя
-        const plants = mockPlants.filter(plant => 
-          plant.owner === mockUsers[0].name
-        );
-        setUserPlants(plants);
+        // В реальном приложении будем использовать API
+        // Сейчас для демонстрации используем импортированные данные
+        const { mockUsers, mockPlants } = await import('@/data/mockData');
+        
+        if (id) {
+          // Реальный API: userData = await getUserById(parseInt(id));
+          userData = mockUsers.find(u => u.id === parseInt(id));
+          // Реальный API: plantData = await getUserPlants(parseInt(id));
+          plantData = mockPlants.filter(plant => plant.owner === userData?.name);
+        } else {
+          // Реальный API: userData = await getCurrentUser();
+          userData = mockUsers[0];
+          // Реальный API: plantData = await getUserPlants(userData.id);
+          plantData = mockPlants.filter(plant => plant.owner === userData.name);
+        }
+        
+        setUser(userData);
+        setUserPlants(plantData || []);
+      } catch (error) {
+        console.error("Ошибка при загрузке данных пользователя:", error);
+        toast({
+          title: "Ошибка загрузки",
+          description: "Не удалось загрузить данные профиля",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
-    }, 500);
-  }, [id]);
-
-  const handleAddPlant = (plantData) => {
-    const newPlant = {
-      id: Date.now(), // Генерируем временный ID
-      name: plantData.name,
-      description: plantData.description,
-      imageUrl: plantData.imageUrl,
-      waterDemand: plantData.waterDemand,
-      sunDemand: plantData.sunDemand,
-      size: plantData.size,
-      isIndoor: plantData.isIndoor,
-      types: plantData.types,
-      owner: user.name,
     };
-
-    setUserPlants([...userPlants, newPlant]);
-    setIsAddDialogOpen(false);
     
-    toast({
-      title: "Растение добавлено",
-      description: `${plantData.name} добавлено в вашу коллекцию`,
-    });
+    fetchUserData();
+  }, [id, toast]);
+
+  const handleAddPlant = async (plantData) => {
+    try {
+      // В реальном приложении будем вызывать API
+      // const newPlant = await createPlant({
+      //   ...plantData,
+      //   owner: user.name
+      // });
+      
+      // Для демо создаем новый объект локально
+      const newPlant = {
+        id: Date.now(),
+        name: plantData.name,
+        description: plantData.description,
+        imageUrl: plantData.imageUrl,
+        waterDemand: plantData.waterDemand,
+        sunDemand: plantData.sunDemand,
+        size: plantData.size,
+        isIndoor: plantData.isIndoor,
+        types: plantData.types,
+        owner: user.name,
+      };
+
+      setUserPlants([...userPlants, newPlant]);
+      setIsAddDialogOpen(false);
+      
+      toast({
+        title: "Растение добавлено",
+        description: `${plantData.name} добавлено в вашу коллекцию`,
+      });
+    } catch (error) {
+      console.error("Ошибка при добавлении растения:", error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось добавить растение",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleOpenDeleteDialog = (plantId, plantName) => {
@@ -85,16 +111,28 @@ const Profile = () => {
     });
   };
 
-  const handleDeletePlant = () => {
-    const updatedPlants = userPlants.filter(plant => plant.id !== deleteDialogState.plantId);
-    setUserPlants(updatedPlants);
-    
-    toast({
-      title: "Растение удалено",
-      description: `${deleteDialogState.plantName} удалено из вашей коллекции`,
-    });
-    
-    setDeleteDialogState({ isOpen: false, plantId: null, plantName: '' });
+  const handleDeletePlant = async () => {
+    try {
+      // В реальном приложении вызовем API
+      // await deletePlant(deleteDialogState.plantId);
+      
+      const updatedPlants = userPlants.filter(plant => plant.id !== deleteDialogState.plantId);
+      setUserPlants(updatedPlants);
+      
+      toast({
+        title: "Растение удалено",
+        description: `${deleteDialogState.plantName} удалено из вашей коллекции`,
+      });
+    } catch (error) {
+      console.error("Ошибка при удалении растения:", error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось удалить растение",
+        variant: "destructive"
+      });
+    } finally {
+      setDeleteDialogState({ isOpen: false, plantId: null, plantName: '' });
+    }
   };
 
   if (loading) {
