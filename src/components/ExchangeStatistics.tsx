@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { 
   ChartContainer, 
@@ -31,11 +30,9 @@ const ExchangeStatistics = () => {
   });
   
   useEffect(() => {
-    // Calculate statistics from mock exchanges
     const plantPopularity = new Map<string, PlantPopularity>();
     const monthStats: Record<string, { completed: number, pending: number, canceled: number }> = {};
     
-    // Initialize last 6 months for chart
     const today = new Date();
     for (let i = 5; i >= 0; i--) {
       const month = new Date(today.getFullYear(), today.getMonth() - i, 1);
@@ -46,17 +43,14 @@ const ExchangeStatistics = () => {
     const stats = { completed: 0, pending: 0, canceled: 0 };
     
     mockExchanges.forEach(exchange => {
-      // Update status stats
       stats[exchange.status]++;
       
-      // Update monthly stats
       const exchangeDate = new Date(exchange.startDate);
       const monthName = exchangeDate.toLocaleString('ru', { month: 'short' });
       if (monthStats[monthName]) {
         monthStats[monthName][exchange.status]++;
       }
       
-      // Process plants for popularity
       const processPlant = (plant: ExchangePlant) => {
         const key = `${plant.id}-${plant.name}`;
         if (!plantPopularity.has(key)) {
@@ -74,7 +68,6 @@ const ExchangeStatistics = () => {
       exchange.receiverPlants.forEach(processPlant);
     });
     
-    // Convert monthly stats to chart data
     const chartDataArray = Object.entries(monthStats).map(([name, data]) => ({
       name,
       completed: data.completed,
@@ -82,7 +75,6 @@ const ExchangeStatistics = () => {
       canceled: data.canceled
     }));
     
-    // Get top plants by popularity
     const sortedPlants = Array.from(plantPopularity.values())
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
@@ -142,9 +134,7 @@ const ExchangeStatistics = () => {
                   <Bar dataKey="completed" fill="var(--color-completed)" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="pending" fill="var(--color-pending)" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="canceled" fill="var(--color-canceled)" radius={[4, 4, 0, 0]} />
-                  <ChartTooltip
-                    content={<ChartTooltipContent />}
-                  />
+                  <ChartTooltip content={<ChartTooltipContent />} />
                 </BarChart>
               </ResponsiveContainer>
               <ChartLegend content={<ChartLegendContent />} />
