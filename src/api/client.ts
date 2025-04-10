@@ -1,58 +1,72 @@
 
-const API_BASE_URL = 'http://localhost:3001/api';
+// Base API configuration and helper functions
+const API_URL = 'http://localhost:3001/api';
 
-export async function apiRequest<T>(
-  endpoint: string, 
-  options: RequestInit = {}
-): Promise<T> {
-  const headers = {
-    'Content-Type': 'application/json',
-    ...options.headers,
-  };
-
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-  });
-
-  if (!response.ok) {
-    try {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Ошибка API');
-    } catch (e) {
-      throw new Error(`Ошибка API: ${response.status}`);
+// Generic GET request
+export async function get<T>(endpoint: string): Promise<T> {
+  try {
+    const response = await fetch(`${API_URL}${endpoint}`);
+    if (!response.ok) {
+      throw new Error(`API error: ${response.statusText}`);
     }
+    return response.json() as Promise<T>;
+  } catch (error) {
+    console.error(`Error fetching from ${endpoint}:`, error);
+    throw error;
   }
+}
 
-  // Для запросов DELETE без содержимого
-  if (response.status === 204) {
-    return {} as T;
+// Generic POST request
+export async function post<T>(endpoint: string, data: any): Promise<T> {
+  try {
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error(`API error: ${response.statusText}`);
+    }
+    return response.json() as Promise<T>;
+  } catch (error) {
+    console.error(`Error posting to ${endpoint}:`, error);
+    throw error;
   }
-
-  return response.json();
 }
 
-// Специализированные обертки для HTTP методов
-export function get<T>(endpoint: string, options?: RequestInit) {
-  return apiRequest<T>(endpoint, { ...options, method: 'GET' });
+// Generic PUT request
+export async function put<T>(endpoint: string, data: any): Promise<T> {
+  try {
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error(`API error: ${response.statusText}`);
+    }
+    return response.json() as Promise<T>;
+  } catch (error) {
+    console.error(`Error updating at ${endpoint}:`, error);
+    throw error;
+  }
 }
 
-export function post<T>(endpoint: string, data?: any, options?: RequestInit) {
-  return apiRequest<T>(endpoint, {
-    ...options,
-    method: 'POST',
-    body: data ? JSON.stringify(data) : undefined,
-  });
-}
-
-export function put<T>(endpoint: string, data?: any, options?: RequestInit) {
-  return apiRequest<T>(endpoint, {
-    ...options,
-    method: 'PUT',
-    body: data ? JSON.stringify(data) : undefined,
-  });
-}
-
-export function del<T>(endpoint: string, options?: RequestInit) {
-  return apiRequest<T>(endpoint, { ...options, method: 'DELETE' });
+// Generic DELETE request
+export async function del(endpoint: string): Promise<void> {
+  try {
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error(`API error: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error(`Error deleting at ${endpoint}:`, error);
+    throw error;
+  }
 }

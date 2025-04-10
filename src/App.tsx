@@ -47,7 +47,7 @@ const App = () => {
         }
       } catch (error) {
         setApiStatus('offline');
-        toast.error('API сервер недоступен. Некоторые функции будут ограничены.');
+        toast.error('API сервер недоступен. Убедитесь, что вы запустили server/server.js');
       }
     };
     
@@ -70,7 +70,7 @@ const App = () => {
               </div>
               <div>
                 <p className="font-bold">API сервер недоступен</p>
-                <p className="text-sm">Работает демонстрационный режим с заглушками данных.</p>
+                <p className="text-sm">Запустите сервер из директории server с помощью команды: npm run dev</p>
               </div>
             </div>
           </div>
