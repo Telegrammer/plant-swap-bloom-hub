@@ -312,5 +312,161 @@ export const mockExchanges: Exchange[] = [
         direction: "received"
       }
     ]
+  },
+  {
+    id: 13,
+    senderId: 2,
+    senderName: "Иван Смирнов",
+    receiverId: 4,
+    receiverName: "Алексей Козлов",
+    status: "completed",
+    startDate: "2024-12-18T13:20:00",
+    endDate: "2024-12-28T09:15:00",
+    senderPlants: [
+      {
+        id: 3,
+        name: "Фикус Лирата",
+        imageUrl: "/images/plants/ficus.jpg",
+        direction: "sent"
+      }
+    ],
+    receiverPlants: [
+      {
+        id: 7,
+        name: "Алоэ Вера",
+        imageUrl: "/images/plants/aloe.jpg",
+        direction: "received"
+      }
+    ]
+  },
+  {
+    id: 14,
+    senderId: 5,
+    senderName: "Мария Соколова",
+    receiverId: 6,
+    receiverName: "Дмитрий Новиков",
+    status: "pending",
+    startDate: "2025-03-10T09:00:00",
+    endDate: null,
+    senderPlants: [
+      {
+        id: 8,
+        name: "Пеперомия",
+        imageUrl: "/images/plants/peperomia.jpg",
+        direction: "sent"
+      }
+    ],
+    receiverPlants: [
+      {
+        id: 14,
+        name: "Бегония Макулата",
+        imageUrl: "/images/plants/begonia.jpg",
+        direction: "received"
+      }
+    ]
+  },
+  {
+    id: 15,
+    senderId: 3,
+    senderName: "Екатерина Иванова",
+    receiverId: 2,
+    receiverName: "Иван Смирнов",
+    status: "completed",
+    startDate: "2025-01-08T11:45:00",
+    endDate: "2025-01-20T16:30:00",
+    senderPlants: [
+      {
+        id: 5,
+        name: "Калатея Орбифолия",
+        imageUrl: "/images/plants/calathea.jpg",
+        direction: "sent"
+      }
+    ],
+    receiverPlants: [
+      {
+        id: 3,
+        name: "Фикус Лирата",
+        imageUrl: "/images/plants/ficus.jpg",
+        direction: "received"
+      }
+    ]
+  },
+  {
+    id: 16,
+    senderId: 4,
+    senderName: "Алексей Козлов",
+    receiverId: 3,
+    receiverName: "Екатерина Иванова",
+    status: "canceled",
+    startDate: "2025-01-15T14:30:00",
+    endDate: "2025-01-18T10:20:00",
+    senderPlants: [
+      {
+        id: 12,
+        name: "Строманта Триостар",
+        imageUrl: "/images/plants/stromanthe.jpg",
+        direction: "sent"
+      }
+    ],
+    receiverPlants: [
+      {
+        id: 5,
+        name: "Калатея Орбифолия",
+        imageUrl: "/images/plants/calathea.jpg",
+        direction: "received"
+      }
+    ]
+  },
+  {
+    id: 17,
+    senderId: 1,
+    senderName: "Анна Петрова",
+    receiverId: 6,
+    receiverName: "Дмитрий Новиков",
+    status: "completed",
+    startDate: "2024-11-15T10:00:00",
+    endDate: "2024-11-25T14:15:00",
+    senderPlants: [
+      {
+        id: 1,
+        name: "Монстера Деликатесная",
+        imageUrl: "/images/plants/monstera.jpg",
+        direction: "sent"
+      }
+    ],
+    receiverPlants: [
+      {
+        id: 14,
+        name: "Бегония Макулата",
+        imageUrl: "/images/plants/begonia.jpg",
+        direction: "received"
+      }
+    ]
+  },
+  {
+    id: 18,
+    senderId: 6,
+    senderName: "Дмитрий Новиков",
+    receiverId: 5,
+    receiverName: "Мария Соколова",
+    status: "completed",
+    startDate: "2025-02-05T13:30:00",
+    endDate: "2025-02-15T09:45:00",
+    senderPlants: [
+      {
+        id: 14,
+        name: "Бегония Макулата",
+        imageUrl: "/images/plants/begonia.jpg",
+        direction: "sent"
+      }
+    ],
+    receiverPlants: [
+      {
+        id: 10,
+        name: "Суккулент Эхеверия",
+        imageUrl: "/images/plants/echeveria.jpg",
+        direction: "received"
+      }
+    ]
   }
 ];

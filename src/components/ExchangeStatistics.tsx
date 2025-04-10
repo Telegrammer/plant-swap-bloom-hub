@@ -31,7 +31,8 @@ const ExchangeStatistics = () => {
   });
   
   useEffect(() => {
-    const plantPopularity = new Map<string, PlantPopularity>();
+    // Calculate plant popularity regardless of direction
+    const plantCountMap = new Map<string, { name: string, count: number, imageUrl: string }>();
     const monthStats: Record<string, { completed: number, pending: number, canceled: number }> = {};
     
     const today = new Date();
@@ -52,17 +53,16 @@ const ExchangeStatistics = () => {
         monthStats[monthName][exchange.status]++;
       }
       
+      // Count plants regardless of direction
       const processPlant = (plant: ExchangePlant) => {
-        const key = `${plant.id}-${plant.name}`;
-        if (!plantPopularity.has(key)) {
-          plantPopularity.set(key, {
+        if (!plantCountMap.has(plant.name)) {
+          plantCountMap.set(plant.name, {
             name: plant.name,
             count: 0,
-            direction: plant.direction,
             imageUrl: plant.imageUrl
           });
         }
-        plantPopularity.get(key)!.count++;
+        plantCountMap.get(plant.name)!.count++;
       };
       
       exchange.senderPlants.forEach(processPlant);
@@ -76,9 +76,14 @@ const ExchangeStatistics = () => {
       canceled: data.canceled
     }));
     
-    const sortedPlants = Array.from(plantPopularity.values())
+    // Convert to array and sort by count
+    const sortedPlants = Array.from(plantCountMap.values())
       .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
+      .slice(0, 5)
+      .map(plant => ({
+        ...plant,
+        direction: "sent" as "sent" | "received" // Add direction for type compatibility, although we won't display it
+      }));
     
     setPopularPlants(sortedPlants);
     setChartData(chartDataArray);
@@ -95,7 +100,7 @@ const ExchangeStatistics = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
+          <div className="space-y-4">
             <div className="grid grid-cols-3 gap-2 mb-4">
               <div className="bg-green-50 p-3 rounded-lg">
                 <div className="text-xs text-gray-500">Завершено</div>
@@ -111,24 +116,24 @@ const ExchangeStatistics = () => {
               </div>
             </div>
             
-            <ChartContainer 
-              className="h-[200px]" 
-              config={{
-                completed: {
-                  theme: { light: '#22c55e', dark: '#22c55e' },
-                  label: 'Завершено'
-                },
-                pending: {
-                  theme: { light: '#eab308', dark: '#eab308' },
-                  label: 'В процессе'
-                },
-                canceled: {
-                  theme: { light: '#ef4444', dark: '#ef4444' },
-                  label: 'Отменено'
-                }
-              }}
-            >
-              <div>
+            <div className="h-[200px]">
+              <ChartContainer 
+                className="h-[200px]" 
+                config={{
+                  completed: {
+                    theme: { light: '#22c55e', dark: '#22c55e' },
+                    label: 'Завершено'
+                  },
+                  pending: {
+                    theme: { light: '#eab308', dark: '#eab308' },
+                    label: 'В процессе'
+                  },
+                  canceled: {
+                    theme: { light: '#ef4444', dark: '#ef4444' },
+                    label: 'Отменено'
+                  }
+                }}
+              >
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData}>
                     <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
@@ -139,9 +144,8 @@ const ExchangeStatistics = () => {
                     <ChartTooltip content={<ChartTooltipContent />} />
                   </BarChart>
                 </ResponsiveContainer>
-                <ChartLegend content={<ChartLegendContent />} />
-              </div>
-            </ChartContainer>
+              </ChartContainer>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -158,7 +162,6 @@ const ExchangeStatistics = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Растение</TableHead>
-                <TableHead>Направление</TableHead>
                 <TableHead className="text-right">Количество</TableHead>
               </TableRow>
             </TableHeader>
@@ -173,18 +176,12 @@ const ExchangeStatistics = () => {
                       <span>{plant.name}</span>
                     </div>
                   </TableCell>
-                  <TableCell>
-                    {plant.direction === 'sent' ? 
-                      <span className="text-green-600">Отправлено</span> : 
-                      <span className="text-blue-600">Получено</span>
-                    }
-                  </TableCell>
                   <TableCell className="text-right">{plant.count}</TableCell>
                 </TableRow>
               ))}
               {popularPlants.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center py-4 text-gray-500">
+                  <TableCell colSpan={2} className="text-center py-4 text-gray-500">
                     Нет данных о популярных растениях
                   </TableCell>
                 </TableRow>
