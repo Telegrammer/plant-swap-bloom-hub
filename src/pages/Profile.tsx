@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { CalendarIcon, MapPin, Mail, Plus, Trash2 } from 'lucide-react';
@@ -215,24 +216,32 @@ const Profile = () => {
           
           {userPlants.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-              {userPlants.map((plant) => (
-                <div key={plant.id} className="relative">
-                  <PlantCard plant={plant} />
-                  
-                  {isOwnProfile && (
-                    <div className="absolute top-4 left-4 z-10 flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="icon"
-                        className="bg-white opacity-80 hover:opacity-100"
-                        onClick={() => handleOpenDeleteDialog(plant.id, plant.name)}
-                      >
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              ))}
+              {userPlants.map((plant) => {
+                // Add ownerProfileLink to plant data for PlantCard
+                const plantWithOwnerLink = {
+                  ...plant,
+                  ownerProfileLink: `/profile/${id || 1}`,
+                };
+                
+                return (
+                  <div key={plant.id} className="relative">
+                    <PlantCard plant={plantWithOwnerLink} />
+                    
+                    {isOwnProfile && (
+                      <div className="absolute top-4 left-4 z-10 flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="icon"
+                          className="bg-white opacity-80 hover:opacity-100"
+                          onClick={() => handleOpenDeleteDialog(plant.id, plant.name)}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <div className="text-center py-12 bg-white rounded-xl border border-gray-200 mt-6">

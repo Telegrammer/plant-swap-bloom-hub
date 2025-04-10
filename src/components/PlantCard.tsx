@@ -9,12 +9,15 @@ interface PlantCardProps {
     waterDemand: string;
     sunDemand: string;
     size: string;
-    ownerProfileLink: string;
+    ownerProfileLink?: string;
     owner: string;
   };
 }
 
 const PlantCard = ({ plant }: PlantCardProps) => {
+  // Generate a profile link if one is not provided
+  const profileLink = plant.ownerProfileLink || `/profile/${plant.id}`;
+
   return (
     <Link
       className="card-link"
@@ -44,7 +47,7 @@ const PlantCard = ({ plant }: PlantCardProps) => {
           <p><b>Владелец:</b></p>
           <Link 
             className="owner-link" 
-            to={plant.ownerProfileLink}
+            to={profileLink}
             onClick={(e) => e.stopPropagation()}
           >
             {plant.owner}
