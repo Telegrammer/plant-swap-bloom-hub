@@ -57,7 +57,7 @@ export async function put<T>(endpoint: string, data: any): Promise<T> {
 }
 
 // Generic DELETE request
-export async function del(endpoint: string): Promise<void> {
+export async function del<T = void>(endpoint: string): Promise<T> {
   try {
     const response = await fetch(`${API_URL}${endpoint}`, {
       method: 'DELETE',
@@ -65,6 +65,11 @@ export async function del(endpoint: string): Promise<void> {
     if (!response.ok) {
       throw new Error(`API error: ${response.statusText}`);
     }
+    // If the response is expected to be empty (204 No Content)
+    if (response.status === 204) {
+      return {} as T;
+    }
+    return response.json() as Promise<T>;
   } catch (error) {
     console.error(`Error deleting at ${endpoint}:`, error);
     throw error;

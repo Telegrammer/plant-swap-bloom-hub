@@ -19,7 +19,7 @@ export function updateExchange(id: number, exchangeData: Partial<Exchange>) {
 }
 
 export function deleteExchange(id: number) {
-  return del<void>(`/exchanges/${id}`);
+  return del(`/exchanges/${id}`);
 }
 
 export function updateExchangeStatus(id: number, status: 'pending' | 'completed' | 'canceled') {

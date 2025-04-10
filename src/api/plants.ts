@@ -35,5 +35,5 @@ export function updatePlant(id: number, plantData: Partial<Plant>) {
 }
 
 export function deletePlant(id: number) {
-  return del<void>(`/plants/${id}`);
+  return del(`/plants/${id}`);
 }
