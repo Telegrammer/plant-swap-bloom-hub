@@ -12,6 +12,7 @@ import PlantDetail from "./pages/PlantDetail";
 import Profile from "./pages/Profile";
 import Exchanges from "./pages/Exchanges";
 import NotFound from "./pages/NotFound";
+import { ChatBot } from "./components/chat/ChatBot";
 
 // Создаем клиент React Query
 const queryClient = new QueryClient({
@@ -86,6 +87,7 @@ const App = () => {
             <Route path="/exchanges" element={<Exchanges />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <ChatBot />
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
