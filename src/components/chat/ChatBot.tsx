@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, Send, X, ChevronDown } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,7 @@ import { ChatMessage } from './ChatMessage';
 import { getSuggestedQuestions, generateBotResponse } from '@/services/chatService';
 import { cn } from '@/lib/utils';
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
-import { useMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,10 +18,9 @@ export const ChatBot = () => {
   const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>(getSuggestedQuestions());
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
-    // Scroll to bottom whenever messages change
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
@@ -31,13 +29,11 @@ export const ChatBot = () => {
   const handleSendMessage = async (text: string) => {
     if (!text.trim()) return;
     
-    // Add user message
     const userMessageId = Date.now().toString();
     setMessages(prev => [...prev, {text, isUser: true, id: userMessageId}]);
     setInputValue('');
     setIsTyping(true);
     
-    // Get bot response
     try {
       const response = await generateBotResponse(text);
       setMessages(prev => [...prev, {text: response, isUser: false, id: Date.now().toString()}]);
