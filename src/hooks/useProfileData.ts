@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { getUserById, getCurrentUser, User } from '@/api/users';
 import { getUserPlants, createPlant, deletePlant, Plant } from '@/api/plants';
-import { mockPlants, mockUsers } from "../server/mockData";
+import { mockPlants, mockUsers } from "@/server/mockData";
 
 export function useProfileData(userId?: string) {
   const [user, setUser] = useState<User | null>(null);
@@ -105,7 +104,7 @@ export function useProfileData(userId?: string) {
       console.error("Ошибка при добавлении растения:", error);
       toast({
         title: "Ошибка",
-        description: "Не удалось добавить растение",
+        description: "Не удалось доб��вить растение",
         variant: "destructive"
       });
       return null;
