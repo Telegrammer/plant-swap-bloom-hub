@@ -3,10 +3,12 @@ import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 import PlantCard from '@/components/PlantCard';
 import PlantFilter from '@/components/PlantFilter';
-import { mockPlants } from '@/data/mockData';
+import { getPlants } from '@/api/plants';
+import { toast } from 'sonner';
 
 const Plants = () => {
-  const [plants, setPlants] = useState(mockPlants);
+  const [plants, setPlants] = useState([]);
+  const [filteredPlants, setFilteredPlants] = useState([]);
   const [filters, setFilters] = useState({
     sizes: [],
     waterDemands: [],
@@ -15,40 +17,50 @@ const Plants = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Имитация загрузки данных
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
+    const fetchPlants = async () => {
+      try {
+        const fetchedPlants = await getPlants();
+        setPlants(fetchedPlants);
+        setFilteredPlants(fetchedPlants);
+      } catch (error) {
+        toast.error('Не удалось загрузить список растений');
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPlants();
   }, []);
 
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
     
     // Применяем фильтры
-    let filteredPlants = [...mockPlants];
+    let filteredPlantsResult = [...plants];
     
     // Фильтр по размеру
     if (newFilters.sizes.length > 0) {
-      filteredPlants = filteredPlants.filter(plant => 
+      filteredPlantsResult = filteredPlantsResult.filter(plant => 
         newFilters.sizes.includes(plant.size)
       );
     }
     
     // Фильтр по поливу
     if (newFilters.waterDemands.length > 0) {
-      filteredPlants = filteredPlants.filter(plant => 
+      filteredPlantsResult = filteredPlantsResult.filter(plant => 
         newFilters.waterDemands.includes(plant.waterDemand)
       );
     }
     
     // Фильтр по освещению
     if (newFilters.sunDemands.length > 0) {
-      filteredPlants = filteredPlants.filter(plant => 
+      filteredPlantsResult = filteredPlantsResult.filter(plant => 
         newFilters.sunDemands.includes(plant.sunDemand)
       );
     }
     
-    setPlants(filteredPlants);
+    setFilteredPlants(filteredPlantsResult);
   };
 
   return (
@@ -64,9 +76,9 @@ const Plants = () => {
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
           </div>
-        ) : plants.length > 0 ? (
+        ) : filteredPlants.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {plants.map((plant) => (
+            {filteredPlants.map((plant) => (
               <PlantCard key={plant.id} plant={plant} />
             ))}
           </div>

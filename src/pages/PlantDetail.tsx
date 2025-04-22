@@ -1,12 +1,13 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useLocation, Link } from 'react-router-dom';
 import { ArrowLeft, Droplets, Sun, Ruler } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import PlantCard from '@/components/PlantCard';
 import ExchangeRequest from '@/components/ExchangeRequest';
-import { mockPlants, mockUsers } from '@/data/mockData';
+import { getPlantById } from '@/api/plants';
+import { getUserById } from '@/api/users';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from 'sonner';
 
 const PlantDetail = () => {
   const { id } = useParams();
@@ -16,27 +17,26 @@ const PlantDetail = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Проверяем, есть ли данные в location.state
-    if (location.state?.plant) {
-      setPlant(location.state.plant);
-      
-      // Находим владельца растения
-      const plantOwner = mockUsers.find(user => user.name === location.state.plant.owner);
-      setOwner(plantOwner);
-      setLoading(false);
-    } else {
-      // Если нет данных в state, ищем растение по id
-      const foundPlant = mockPlants.find(p => p.id === parseInt(id));
-      if (foundPlant) {
-        setPlant(foundPlant);
-        
-        // Находим владельца растения
-        const plantOwner = mockUsers.find(user => user.name === foundPlant.owner);
-        setOwner(plantOwner);
+    const fetchPlantDetails = async () => {
+      try {
+        if (id) {
+          const fetchedPlant = await getPlantById(id);
+          setPlant(fetchedPlant);
+
+          // Fetch owner details
+          const plantOwner = await getUserById(fetchedPlant.owner);
+          setOwner(plantOwner);
+        }
+      } catch (error) {
+        toast.error('Не удалось загрузить информацию о растении');
+        console.error(error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    }
-  }, [id, location.state]);
+    };
+
+    fetchPlantDetails();
+  }, [id]);
 
   if (loading) {
     return (
@@ -116,7 +116,7 @@ const PlantDetail = () => {
               <div className="border-t border-gray-200 pt-6 mb-6">
                 <h3 className="font-medium text-lg mb-3">Владелец</h3>
                 
-                <Link to={plant.ownerProfileLink} className="flex items-center gap-3 group">
+                <Link to={`/profile/${owner?.id}`} className="flex items-center gap-3 group">
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={owner?.profileImageUrl} alt={owner?.name} />
                     <AvatarFallback>{owner?.name.substring(0, 2).toUpperCase()}</AvatarFallback>
@@ -146,12 +146,12 @@ const PlantDetail = () => {
           <h2 className="section-title">Похожие растения</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-            {mockPlants
+            {/*mockPlants
               .filter(p => p.id !== plant.id && p.type === plant.type)
               .slice(0, 3)
               .map(p => (
                 <PlantCard key={p.id} plant={p} />
-              ))}
+              ))*/}
           </div>
         </div>
       </main>
