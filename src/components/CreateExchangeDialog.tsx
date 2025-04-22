@@ -1,11 +1,14 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { mockUsers } from '@/data/mockData';
+import { getUserPlants } from '@/api/plants';
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ExchangePlantSelector from './ExchangePlantSelector';
+import { Plant } from '@/api/plants';
+import { User } from '@/api/users';
+import { getUsersWithPlants } from '@/api/users';
 
 interface CreateExchangeDialogProps {
   isOpen: boolean;
@@ -14,14 +17,31 @@ interface CreateExchangeDialogProps {
 }
 
 export function CreateExchangeDialog({ isOpen, onClose, onCreateExchange }: CreateExchangeDialogProps) {
+  const [users, setUsers] = useState<User[]>([]);
   const [receiverId, setReceiverId] = useState<string | null>(null);
   const [selectedPlants, setSelectedPlants] = useState<string[]>([]);
   const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(true);
   
-  // Filter out the current user (assuming user ID 1 is current)
-  const currentUserId = "1"; // Changed to string to match Supabase UUID
-  const otherUsers = mockUsers.filter(user => user.id.toString() !== currentUserId)
-    .map(user => ({ ...user, id: user.id.toString() })); // Ensure IDs are strings
+  // Current user ID - in real app would come from auth context
+  const currentUserId = '1';
+  
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const fetchedUsers = await getUsersWithPlants();
+        // Filter out current user
+        const otherUsers = fetchedUsers.filter(user => user.id !== currentUserId);
+        setUsers(otherUsers);
+        setLoading(false);
+      } catch (error) {
+        console.error('Failed to fetch users', error);
+        setLoading(false);
+      }
+    };
+    
+    fetchUsers();
+  }, []);
   
   const handleNext = () => {
     if (receiverId) {
@@ -47,6 +67,16 @@ export function CreateExchangeDialog({ isOpen, onClose, onCreateExchange }: Crea
     onClose();
   };
 
+  if (loading) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent>
+          <div>Загрузка пользователей...</div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
@@ -66,7 +96,7 @@ export function CreateExchangeDialog({ isOpen, onClose, onCreateExchange }: Crea
                   <SelectValue placeholder="Выберите пользователя" />
                 </SelectTrigger>
                 <SelectContent>
-                  {otherUsers.map(user => (
+                  {users.map(user => (
                     <SelectItem key={user.id} value={user.id}>
                       {user.name}
                     </SelectItem>

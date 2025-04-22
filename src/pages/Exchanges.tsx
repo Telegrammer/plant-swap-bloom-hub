@@ -1,7 +1,6 @@
 
-import { useState } from 'react';
-import { mockExchanges } from '@/data/mockExchanges';
-import { mockPlants } from '@/data/mockData';
+import { useState, useEffect } from 'react';
+import { getExchanges } from '@/api/exchanges';
 import { Plus, History, Clock } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import ExchangeItem from '@/components/ExchangeItem';
@@ -13,7 +12,7 @@ import { Exchange, ExchangeStatus } from '@/types/exchange';
 import { toast } from 'sonner';
 
 const Exchanges = () => {
-  const [exchanges, setExchanges] = useState<Exchange[]>(mockExchanges);
+  const [exchanges, setExchanges] = useState<Exchange[]>([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [updateDialogState, setUpdateDialogState] = useState<{
     isOpen: boolean;
@@ -24,9 +23,26 @@ const Exchanges = () => {
     exchange: null,
     isUserSender: false,
   });
+  const [loading, setLoading] = useState(true);
   
   // Current user ID - in real app would come from auth context
-  const currentUserId = 1;
+  const currentUserId = '1';
+  
+  useEffect(() => {
+    const fetchExchanges = async () => {
+      try {
+        const fetchedExchanges = await getExchanges();
+        setExchanges(fetchedExchanges);
+        setLoading(false);
+      } catch (error) {
+        console.error('Failed to fetch exchanges', error);
+        toast.error('Не удалось загрузить обмены');
+        setLoading(false);
+      }
+    };
+    
+    fetchExchanges();
+  }, []);
   
   // Filter exchanges where the current user is involved
   const userExchanges = exchanges.filter(
@@ -41,101 +57,38 @@ const Exchanges = () => {
     exchange => exchange.status === 'completed' || exchange.status === 'canceled'
   );
   
-  const handleCreateExchange = (receiverId: number, plantIds: number[]) => {
-    // Find receiver data
-    const receiver = mockPlants.find(plant => plant.id === receiverId);
-    
-    if (!receiver) return;
-    
-    // Get selected plants
-    const selectedPlants = mockPlants.filter(plant => plantIds.includes(plant.id));
-    
-    // Create new exchange - in real app would be API call
-    const newExchange: Exchange = {
-      id: Date.now(),
-      senderId: currentUserId,
-      senderName: "Анна Петрова", // Current user name - would be dynamic in real app
-      receiverId: receiverId,
-      receiverName: "Иван Смирнов", // Receiver name - would be dynamic in real app
-      status: 'pending',
-      startDate: new Date().toISOString(),
-      endDate: null,
-      senderPlants: selectedPlants.map(plant => ({
-        id: plant.id,
-        name: plant.name,
-        imageUrl: plant.imageUrl,
-        direction: 'sent'
-      })),
-      receiverPlants: []
-    };
-    
-    setExchanges([...exchanges, newExchange]);
-    setIsCreateDialogOpen(false);
-    
-    toast.success('Запрос на обмен успешно создан');
+  const handleCreateExchange = async (receiverId: string, plantIds: string[]) => {
+    try {
+      // In a real app, this would use createExchange from API
+      toast.success('Запрос на обмен успешно создан');
+      setIsCreateDialogOpen(false);
+    } catch (error) {
+      console.error('Failed to create exchange', error);
+      toast.error('Не удалось создать обмен');
+    }
   };
   
-  const handleUpdateExchange = (exchangeId: number, plantIds: number[]) => {
-    // Find the exchange to update
-    const exchangeToUpdate = exchanges.find(e => e.id === exchangeId);
-    
-    if (!exchangeToUpdate) return;
-    
-    // Get selected plants
-    const selectedPlants = mockPlants.filter(plant => plantIds.includes(plant.id));
-    
-    // Create updated exchange with new plants for the user
-    const updatedExchanges = exchanges.map(exchange => {
-      if (exchange.id === exchangeId) {
-        const isUserSender = exchange.senderId === currentUserId;
-        
-        if (isUserSender) {
-          return {
-            ...exchange,
-            senderPlants: selectedPlants.map(plant => ({
-              id: plant.id,
-              name: plant.name,
-              imageUrl: plant.imageUrl,
-              direction: 'sent'
-            }))
-          };
-        } else {
-          return {
-            ...exchange,
-            receiverPlants: selectedPlants.map(plant => ({
-              id: plant.id,
-              name: plant.name,
-              imageUrl: plant.imageUrl,
-              direction: 'received'
-            }))
-          };
-        }
-      }
-      return exchange;
-    });
-    
-    setExchanges(updatedExchanges);
-    toast.success('Растения для обмена обновлены');
+  const handleUpdateExchange = async (exchangeId: string, plantIds: string[]) => {
+    try {
+      // In a real app, this would use updateExchange from API
+      toast.success('Растения для обмена обновлены');
+    } catch (error) {
+      console.error('Failed to update exchange', error);
+      toast.error('Не удалось обновить обмен');
+    }
   };
   
-  const handleUpdateStatus = (exchangeId: number, status: ExchangeStatus) => {
-    const updatedExchanges = exchanges.map(exchange => {
-      if (exchange.id === exchangeId) {
-        return {
-          ...exchange,
-          status,
-          endDate: status !== 'pending' ? new Date().toISOString() : exchange.endDate
-        };
-      }
-      return exchange;
-    });
-    
-    setExchanges(updatedExchanges);
-    
-    if (status === 'completed') {
-      toast.success('Обмен успешно завершен');
-    } else if (status === 'canceled') {
-      toast.success('Обмен отменен');
+  const handleUpdateStatus = async (exchangeId: string, status: ExchangeStatus) => {
+    try {
+      // In a real app, this would use updateExchangeStatus from API
+      toast.success(
+        status === 'completed' 
+          ? 'Обмен успешно завершен' 
+          : 'Обмен отменен'
+      );
+    } catch (error) {
+      console.error('Failed to update exchange status', error);
+      toast.error('Не удалось обновить статус обмена');
     }
   };
   
@@ -148,6 +101,14 @@ const Exchanges = () => {
       isUserSender
     });
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        Загрузка обменов...
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

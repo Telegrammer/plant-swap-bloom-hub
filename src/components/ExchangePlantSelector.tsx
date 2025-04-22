@@ -1,10 +1,11 @@
 
-import { useState } from 'react';
-import { mockPlants } from '@/data/mockData';
+import { useState, useEffect } from 'react';
+import { getUserPlants } from '@/api/plants';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Plant } from '@/api/plants';
 
 interface ExchangePlantSelectorProps {
   userId: string;
@@ -14,14 +15,24 @@ interface ExchangePlantSelectorProps {
 }
 
 const ExchangePlantSelector = ({ userId, selectedPlants, onSelectionChange, onClose }: ExchangePlantSelectorProps) => {
-  // Get user plants - in real app would filter by user ID
-  const userPlants = mockPlants.filter(plant => plant.owner === "Анна Петрова")
-    .map(plant => ({
-      ...plant,
-      id: plant.id.toString() // Ensure IDs are strings
-    }));
-  
+  const [userPlants, setUserPlants] = useState<Plant[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selection, setSelection] = useState<string[]>(selectedPlants);
+  
+  useEffect(() => {
+    const fetchUserPlants = async () => {
+      try {
+        const plants = await getUserPlants(userId);
+        setUserPlants(plants);
+        setLoading(false);
+      } catch (error) {
+        console.error('Failed to fetch user plants', error);
+        setLoading(false);
+      }
+    };
+    
+    fetchUserPlants();
+  }, [userId]);
   
   const toggleSelection = (plantId: string) => {
     if (selection.includes(plantId)) {
@@ -35,6 +46,12 @@ const ExchangePlantSelector = ({ userId, selectedPlants, onSelectionChange, onCl
     onSelectionChange(selection);
     onClose();
   };
+
+  if (loading) {
+    return (
+      <div className="text-center p-4">Загрузка растений...</div>
+    );
+  }
 
   return (
     <div className="p-2">
