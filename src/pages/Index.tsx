@@ -1,22 +1,34 @@
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Leaf, RefreshCw, Users } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import PlantCard from '@/components/PlantCard';
 import ExchangeStatistics from '@/components/ExchangeStatistics';
-import { mockPlants } from '@/data/mockData';
+import { Plant, getPlants } from '@/api/plants';
 import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
-  const [featuredPlants, setFeaturedPlants] = useState([]);
+  const [featuredPlants, setFeaturedPlants] = useState<Plant[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
-    // В реальном приложении здесь будет API запрос за избранными растениями
-    const featured = mockPlants.slice(0, 3);
-    setFeaturedPlants(featured);
+    const fetchFeaturedPlants = async () => {
+      try {
+        const plants = await getPlants();
+        setFeaturedPlants(plants.slice(0, 3));
+      } catch (error) {
+        console.error('Error fetching featured plants:', error);
+        toast({
+          title: "Ошибка загрузки",
+          description: "Не удалось загрузить избранные растения",
+          variant: "destructive"
+        });
+      }
+    };
+
+    fetchFeaturedPlants();
     
-    // Приветственный тост при первом посещении
     const hasVisited = localStorage.getItem('hasVisitedBloomHub');
     if (!hasVisited) {
       setTimeout(() => {

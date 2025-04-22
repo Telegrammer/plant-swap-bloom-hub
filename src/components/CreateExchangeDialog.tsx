@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getUserPlants } from '@/api/plants';
@@ -8,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import ExchangePlantSelector from './ExchangePlantSelector';
 import { Plant } from '@/api/plants';
 import { User } from '@/api/users';
-import { getUsersWithPlants } from '@/api/users';
+import { getUsers } from '@/api/users';
 
 interface CreateExchangeDialogProps {
   isOpen: boolean;
@@ -23,14 +22,12 @@ export function CreateExchangeDialog({ isOpen, onClose, onCreateExchange }: Crea
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(true);
   
-  // Current user ID - in real app would come from auth context
   const currentUserId = '1';
   
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const fetchedUsers = await getUsersWithPlants();
-        // Filter out current user
+        const fetchedUsers = await getUsers();
         const otherUsers = fetchedUsers.filter(user => user.id !== currentUserId);
         setUsers(otherUsers);
         setLoading(false);

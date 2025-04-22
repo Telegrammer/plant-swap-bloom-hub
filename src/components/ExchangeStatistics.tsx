@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { 
   ChartContainer, 
@@ -42,8 +41,9 @@ const ExchangeStatistics = () => {
         
         // Временное решение - импортируем данные напрямую
         // Этот код будет заменен на реальный API-вызов
-        const { mockExchanges } = await import('@/data/mockExchanges');
-        const exchanges = mockExchanges;
+        // const { mockExchanges } = await import('@/data/mockExchanges');
+        // const exchanges = mockExchanges;
+        const exchanges = await getExchanges();
         
         processExchangeData(exchanges);
       } catch (error) {
