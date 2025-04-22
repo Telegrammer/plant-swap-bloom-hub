@@ -5,22 +5,25 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Check, X } from 'lucide-react';
 
 interface ExchangePlantSelectorProps {
-  userId: number;
-  selectedPlants: number[];
-  onSelectionChange: (plantIds: number[]) => void;
+  userId: string;
+  selectedPlants: string[];
+  onSelectionChange: (plantIds: string[]) => void;
   onClose: () => void;
 }
 
 const ExchangePlantSelector = ({ userId, selectedPlants, onSelectionChange, onClose }: ExchangePlantSelectorProps) => {
   // Get user plants - in real app would filter by user ID
-  const userPlants = mockPlants.filter(plant => plant.owner === "Анна Петрова");
+  const userPlants = mockPlants.filter(plant => plant.owner === "Анна Петрова")
+    .map(plant => ({
+      ...plant,
+      id: plant.id.toString() // Ensure IDs are strings
+    }));
   
-  const [selection, setSelection] = useState<number[]>(selectedPlants);
+  const [selection, setSelection] = useState<string[]>(selectedPlants);
   
-  const toggleSelection = (plantId: number) => {
+  const toggleSelection = (plantId: string) => {
     if (selection.includes(plantId)) {
       setSelection(selection.filter(id => id !== plantId));
     } else {

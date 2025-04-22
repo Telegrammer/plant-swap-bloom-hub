@@ -24,9 +24,9 @@ export function useProfileData(userId?: string) {
         const { mockUsers, mockPlants } = await import('@/data/mockData');
         
         if (userId) {
-          // Real API: userData = await getUserById(parseInt(userId));
+          // Real API: userData = await getUserById(userId);
           userData = mockUsers.find(u => u.id === parseInt(userId));
-          // Real API: plantData = await getUserPlants(parseInt(userId));
+          // Real API: plantData = await getUserPlants(userId);
           plantData = mockPlants.filter(plant => plant.owner === userData?.name);
         } else {
           // Real API: userData = await getCurrentUser();
@@ -63,8 +63,8 @@ export function useProfileData(userId?: string) {
       // });
       
       // For demo we create a new object locally
-      const newPlant = {
-        id: Date.now(),
+      const newPlant: Plant = {
+        id: `temp-${Date.now()}`, // Using string ID to match Supabase UUID
         name: plantData.name,
         description: plantData.description,
         imageUrl: plantData.imageUrl,
@@ -95,7 +95,7 @@ export function useProfileData(userId?: string) {
     }
   };
 
-  const handleDeletePlant = async (plantId: number) => {
+  const handleDeletePlant = async (plantId: string) => {
     try {
       // In a real application we would call the API
       // await deletePlant(plantId);

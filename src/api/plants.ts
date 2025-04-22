@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Plant as SupabasePlant, Profile } from '@/types/supabase-types';
 
 export interface Plant {
-  id: string;
+  id: string; // Changed from number to string to match Supabase
   name: string;
   description?: string;
   imageUrl: string | null;

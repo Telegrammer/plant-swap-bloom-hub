@@ -8,7 +8,7 @@ interface UserPlantsGridProps {
   plants: Plant[];
   isOwnProfile: boolean;
   onAddPlant: () => void;
-  onDeletePlant: (plantId: number, plantName: string) => void;
+  onDeletePlant: (plantId: string, plantName: string) => void;
 }
 
 const UserPlantsGrid = ({ plants, isOwnProfile, onAddPlant, onDeletePlant }: UserPlantsGridProps) => {
@@ -39,7 +39,7 @@ const UserPlantsGrid = ({ plants, isOwnProfile, onAddPlant, onDeletePlant }: Use
             
             return (
               <div key={plant.id} className="relative">
-                <PlantCard plant={plantWithOwnerLink} />
+                <PlantCard plant={plantWithOwnerLink as any} />
                 
                 {isOwnProfile && (
                   <div className="absolute top-4 left-4 z-10 flex gap-2">

@@ -10,7 +10,7 @@ interface UpdateExchangeDialogProps {
   onClose: () => void;
   exchange: Exchange | null;
   isUserSender: boolean;
-  onUpdateExchange: (exchangeId: number, plantIds: number[]) => void;
+  onUpdateExchange: (exchangeId: string, plantIds: string[]) => void;
 }
 
 export function UpdateExchangeDialog({ 
@@ -20,7 +20,7 @@ export function UpdateExchangeDialog({
   isUserSender, 
   onUpdateExchange 
 }: UpdateExchangeDialogProps) {
-  const [selectedPlants, setSelectedPlants] = useState<number[]>([]);
+  const [selectedPlants, setSelectedPlants] = useState<string[]>([]);
   
   useEffect(() => {
     if (exchange) {
@@ -51,7 +51,7 @@ export function UpdateExchangeDialog({
         </DialogHeader>
         
         <ExchangePlantSelector 
-          userId={1} // Current user ID - in real app would be dynamic
+          userId="1" // Current user ID - in real app would be dynamic
           selectedPlants={selectedPlants}
           onSelectionChange={setSelectedPlants}
           onClose={onClose}

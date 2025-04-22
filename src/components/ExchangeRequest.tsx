@@ -6,9 +6,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeftRight, Send } from 'lucide-react';
 
 interface ExchangeRequestProps {
-  plantId: number;
+  plantId: string;
   plantName: string;
-  ownerId: number;
+  ownerId: string;
   ownerName: string;
 }
 

@@ -10,17 +10,18 @@ import ExchangePlantSelector from './ExchangePlantSelector';
 interface CreateExchangeDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreateExchange: (receiverId: number, plantIds: number[]) => void;
+  onCreateExchange: (receiverId: string, plantIds: string[]) => void;
 }
 
 export function CreateExchangeDialog({ isOpen, onClose, onCreateExchange }: CreateExchangeDialogProps) {
-  const [receiverId, setReceiverId] = useState<number | null>(null);
-  const [selectedPlants, setSelectedPlants] = useState<number[]>([]);
+  const [receiverId, setReceiverId] = useState<string | null>(null);
+  const [selectedPlants, setSelectedPlants] = useState<string[]>([]);
   const [step, setStep] = useState(1);
   
   // Filter out the current user (assuming user ID 1 is current)
-  const currentUserId = 1;
-  const otherUsers = mockUsers.filter(user => user.id !== currentUserId);
+  const currentUserId = "1"; // Changed to string to match Supabase UUID
+  const otherUsers = mockUsers.filter(user => user.id.toString() !== currentUserId)
+    .map(user => ({ ...user, id: user.id.toString() })); // Ensure IDs are strings
   
   const handleNext = () => {
     if (receiverId) {
@@ -58,15 +59,15 @@ export function CreateExchangeDialog({ isOpen, onClose, onCreateExchange }: Crea
             <div>
               <Label htmlFor="receiver">Выберите пользователя для обмена</Label>
               <Select 
-                value={receiverId?.toString() || ''} 
-                onValueChange={(value) => setReceiverId(parseInt(value))}
+                value={receiverId || ''} 
+                onValueChange={(value) => setReceiverId(value)}
               >
                 <SelectTrigger id="receiver">
                   <SelectValue placeholder="Выберите пользователя" />
                 </SelectTrigger>
                 <SelectContent>
                   {otherUsers.map(user => (
-                    <SelectItem key={user.id} value={user.id.toString()}>
+                    <SelectItem key={user.id} value={user.id}>
                       {user.name}
                     </SelectItem>
                   ))}

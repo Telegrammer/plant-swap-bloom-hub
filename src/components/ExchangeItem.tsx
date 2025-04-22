@@ -5,14 +5,14 @@ import { ru } from 'date-fns/locale';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Exchange, ExchangeStatus } from '@/types/exchange';
 import { Badge } from "@/components/ui/badge";
-import { ArrowRightLeft, Calendar, Check, Clock, X } from 'lucide-react';
+import { ArrowRightLeft, Calendar, Check, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface ExchangeItemProps {
   exchange: Exchange;
   isUserSender: boolean;
-  onUpdateStatus?: (exchangeId: number, status: ExchangeStatus) => void;
+  onUpdateStatus?: (exchangeId: string, status: ExchangeStatus) => void;
 }
 
 const statusConfig = {

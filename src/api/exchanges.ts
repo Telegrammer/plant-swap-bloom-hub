@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { Exchange as SupabaseExchange, Profile, Plant as SupabasePlant } from '@/types/supabase-types';
+import { Exchange as SupabaseExchange, Profile, Plant as SupabasePlant, ExchangeStatus } from '@/types/supabase-types';
 import { Exchange } from '@/types/exchange';
 import { Plant } from './plants';
 
@@ -40,14 +40,8 @@ const exchangeToInterface = async (exchange: SupabaseExchange, senderName?: stri
     return {
       id: plant.id,
       name: plant.name,
-      description: plant.description || undefined,
       imageUrl: plant.image_url,
-      waterDemand: plant.water_demand,
-      sunDemand: plant.sun_demand,
-      size: plant.size,
-      isIndoor: plant.is_indoor || false,
-      types: [],
-      owner: plant.profiles.name
+      direction: 'sent' as const
     };
   });
   
@@ -56,26 +50,20 @@ const exchangeToInterface = async (exchange: SupabaseExchange, senderName?: stri
     return {
       id: plant.id,
       name: plant.name,
-      description: plant.description || undefined,
       imageUrl: plant.image_url,
-      waterDemand: plant.water_demand,
-      sunDemand: plant.sun_demand,
-      size: plant.size,
-      isIndoor: plant.is_indoor || false,
-      types: [],
-      owner: plant.profiles.name
+      direction: 'received' as const
     };
   });
   
   return {
-    id: parseInt(exchange.id),  // Converting UUID to number for compatibility
+    id: exchange.id,
     senderId: exchange.sender_id,
     senderName: senderName || '',
     receiverId: exchange.receiver_id,
     receiverName: receiverName || '',
     status: exchange.status,
     startDate: exchange.start_date,
-    endDate: exchange.end_date || undefined,
+    endDate: exchange.end_date || null,
     senderPlants: convertedSenderPlants,
     receiverPlants: convertedReceiverPlants
   };
@@ -135,7 +123,7 @@ export async function createExchange(exchangeData: Omit<Exchange, 'id'>): Promis
   const exchangeInsert = {
     sender_id: user.id,
     receiver_id: exchangeData.receiverId,
-    status: exchangeData.status as 'pending' | 'completed' | 'canceled',
+    status: exchangeData.status as ExchangeStatus,
     start_date: exchangeData.startDate,
     end_date: exchangeData.endDate || null
   };
@@ -180,7 +168,7 @@ export async function updateExchange(id: string, exchangeData: Partial<Exchange>
   const updateData: Partial<SupabaseExchange> = {};
   
   if (exchangeData.status) {
-    updateData.status = exchangeData.status as 'pending' | 'completed' | 'canceled';
+    updateData.status = exchangeData.status as ExchangeStatus;
   }
   
   if (exchangeData.endDate) {
