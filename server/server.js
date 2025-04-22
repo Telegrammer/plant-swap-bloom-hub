@@ -384,6 +384,34 @@ app.put('/api/users/:id', async (req, res) => {
   }
 });
 
+// CHAT API ROUTES
+
+// Generate bot response
+app.post('/api/chat/generate', async (req, res) => {
+  try {
+    const { message } = req.body;
+    
+    // Simple response logic - in a real app, this would connect to an AI service
+    let response = "Извините, я не могу ответить на этот вопрос.";
+    
+    // Basic pattern matching for demo purposes
+    if (message.toLowerCase().includes('монстер')) {
+      response = "Монстера любит яркий непрямой свет и умеренный полив. Поливайте, когда верхний слой почвы подсохнет.";
+    } else if (message.toLowerCase().includes('темн')) {
+      response = "Для темных помещений хорошо подходят замиокулькас, аспидистра и многие виды папоротников.";
+    } else if (message.toLowerCase().includes('суккулент')) {
+      response = "Суккуленты нужно поливать редко, только когда почва полностью просохнет. Обычно это раз в 1-2 недели.";
+    } else if (message.toLowerCase().includes('жёлт') || message.toLowerCase().includes('желт')) {
+      response = "Пожелтение листьев может быть вызвано переливом, недостатком света или питательных веществ. Проверьте режим полива и освещение.";
+    }
+    
+    res.json({ response });
+  } catch (error) {
+    console.error('Error generating response:', error);
+    res.status(500).json({ message: 'Ошибка при генерации ответа' });
+  }
+});
+
 // Инициализируем данные перед запуском сервера
 initializeDataIfNeeded().then(() => {
   // Запускаем сервер
