@@ -9,7 +9,161 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      exchange_compositions: {
+        Row: {
+          direction: string
+          exchange_id: string
+          plant_id: string
+        }
+        Insert: {
+          direction: string
+          exchange_id: string
+          plant_id: string
+        }
+        Update: {
+          direction?: string
+          exchange_id?: string
+          plant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exchange_compositions_exchange_id_fkey"
+            columns: ["exchange_id"]
+            isOneToOne: false
+            referencedRelation: "exchanges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exchange_compositions_plant_id_fkey"
+            columns: ["plant_id"]
+            isOneToOne: false
+            referencedRelation: "plants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exchanges: {
+        Row: {
+          created_at: string
+          end_date: string | null
+          id: string
+          receiver_id: string
+          sender_id: string
+          start_date: string
+          status: Database["public"]["Enums"]["exchange_status"]
+        }
+        Insert: {
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          receiver_id: string
+          sender_id: string
+          start_date?: string
+          status?: Database["public"]["Enums"]["exchange_status"]
+        }
+        Update: {
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          receiver_id?: string
+          sender_id?: string
+          start_date?: string
+          status?: Database["public"]["Enums"]["exchange_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exchanges_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exchanges_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plants: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_indoor: boolean | null
+          name: string
+          owner_id: string
+          size: Database["public"]["Enums"]["plant_size"]
+          sun_demand: Database["public"]["Enums"]["light_demand"]
+          water_demand: Database["public"]["Enums"]["water_demand"]
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_indoor?: boolean | null
+          name: string
+          owner_id: string
+          size: Database["public"]["Enums"]["plant_size"]
+          sun_demand: Database["public"]["Enums"]["light_demand"]
+          water_demand: Database["public"]["Enums"]["water_demand"]
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_indoor?: boolean | null
+          name?: string
+          owner_id?: string
+          size?: Database["public"]["Enums"]["plant_size"]
+          sun_demand?: Database["public"]["Enums"]["light_demand"]
+          water_demand?: Database["public"]["Enums"]["water_demand"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plants_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          bio: string | null
+          created_at: string
+          email: string
+          id: string
+          location: string | null
+          name: string
+          profile_image_url: string | null
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          email: string
+          id: string
+          location?: string | null
+          name: string
+          profile_image_url?: string | null
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          location?: string | null
+          name?: string
+          profile_image_url?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +172,10 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      exchange_status: "pending" | "completed" | "canceled"
+      light_demand: "low" | "medium" | "high"
+      plant_size: "small" | "medium" | "large"
+      water_demand: "low" | "medium" | "high"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +290,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      exchange_status: ["pending", "completed", "canceled"],
+      light_demand: ["low", "medium", "high"],
+      plant_size: ["small", "medium", "large"],
+      water_demand: ["low", "medium", "high"],
+    },
   },
 } as const
