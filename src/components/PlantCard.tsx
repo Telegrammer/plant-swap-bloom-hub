@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 interface PlantCardProps {
   plant: {
-    id: number;
+    id: string;  // Changed from number to string to match Supabase's UUID format
     name: string;
     imageUrl: string;
     waterDemand: string;
