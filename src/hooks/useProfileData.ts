@@ -1,8 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { getUserById, getCurrentUser, User } from '@/api/users';
 import { getUserPlants, createPlant, deletePlant, Plant } from '@/api/plants';
-import { mockPlants, mockUsers } from "@/server/mockData";
 
 export function useProfileData(userId?: string) {
   const [user, setUser] = useState<User | null>(null);
@@ -10,39 +10,24 @@ export function useProfileData(userId?: string) {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   
-  const isOwnProfile = !userId; // If no userId is provided, it's the current user's profile
+  const isOwnProfile = !userId;
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
-        let userData;
-        let plantData;
+        let userData: User | null;
+        let plantData: Plant[];
         
-        // We now directly use imported mock data rather than dynamically importing it
         if (userId) {
-          try {
-            // Try to use the real API first
-            userData = await getUserById(userId);
-            plantData = await getUserPlants(userId);
-          } catch (error) {
-            console.log("Falling back to mock data", error);
-            // Fallback to mock data
-            userData = mockUsers.find(u => u.id === parseInt(userId));
-            plantData = mockPlants.filter(plant => plant.owner === userData?.name);
-          }
+          userData = await getUserById(userId);
+          plantData = await getUserPlants(userId);
         } else {
-          try {
-            // Try to use the real API first
-            userData = await getCurrentUser();
-            if (userData) {
-              plantData = await getUserPlants(userData.id);
-            }
-          } catch (error) {
-            console.log("Falling back to mock data", error);
-            // Fallback to mock data
-            userData = mockUsers[0];
-            plantData = mockPlants.filter(plant => plant.owner === userData.name);
+          userData = await getCurrentUser();
+          if (userData) {
+            plantData = await getUserPlants(userData.id);
+          } else {
+            plantData = [];
           }
         }
         
@@ -63,35 +48,12 @@ export function useProfileData(userId?: string) {
     fetchUserData();
   }, [userId, toast]);
 
-  const handleAddPlant = async (plantData: Omit<Plant, 'id' | 'owner'>) => {
+  const handleAddPlant = async (plantData: Omit<Plant, 'id'>) => {
     try {
-      if (!user) return;
+      if (!user) return null;
       
-      let newPlant: Plant;
+      const newPlant = await createPlant(plantData);
       
-      try {
-        // Try to use the real API
-        newPlant = await createPlant({
-          ...plantData,
-          owner: user.name
-        });
-      } catch (error) {
-        console.log("Falling back to mock data for plant creation", error);
-        // For demo we create a new object locally
-        newPlant = {
-          id: `temp-${Date.now()}`, // Using string ID to match Supabase UUID
-          name: plantData.name,
-          description: plantData.description,
-          imageUrl: plantData.imageUrl,
-          waterDemand: plantData.waterDemand,
-          sunDemand: plantData.sunDemand,
-          size: plantData.size,
-          isIndoor: plantData.isIndoor,
-          types: plantData.types,
-          owner: user.name,
-        };
-      }
-
       setUserPlants([...userPlants, newPlant]);
       
       toast({
@@ -104,7 +66,7 @@ export function useProfileData(userId?: string) {
       console.error("Ошибка при добавлении растения:", error);
       toast({
         title: "Ошибка",
-        description: "Не удалось доб��вить растение",
+        description: "Не удалось добавить растение",
         variant: "destructive"
       });
       return null;
@@ -113,13 +75,7 @@ export function useProfileData(userId?: string) {
 
   const handleDeletePlant = async (plantId: string) => {
     try {
-      try {
-        // Try to use the real API
-        await deletePlant(plantId);
-      } catch (error) {
-        console.log("Falling back to local state management for plant deletion", error);
-      }
-      
+      await deletePlant(plantId);
       const updatedPlants = userPlants.filter(plant => plant.id !== plantId);
       setUserPlants(updatedPlants);
       return true;
