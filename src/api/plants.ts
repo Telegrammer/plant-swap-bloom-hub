@@ -99,12 +99,14 @@ export async function createPlant(plantData: Omit<Plant, 'id' | 'owner'>): Promi
     name: plantData.name,
     description: plantData.description || null,
     image_url: plantData.imageUrl,
-    water_demand: plantData.waterDemand as any, // Using 'as any' because we need to match the enum
-    sun_demand: plantData.sunDemand as any,
-    size: plantData.size as any,
+    water_demand: plantData.waterDemand, // Already converted to proper enum format
+    sun_demand: plantData.sunDemand, // Already converted to proper enum format
+    size: plantData.size,
     is_indoor: plantData.isIndoor,
     owner_id: user.id
   };
+  
+  console.log('Sending to Supabase:', supabasePlantData);
   
   const { data, error } = await supabase
     .from('plants')
@@ -112,7 +114,10 @@ export async function createPlant(plantData: Omit<Plant, 'id' | 'owner'>): Promi
     .select()
     .single();
   
-  if (error) throw error;
+  if (error) {
+    console.error('Supabase error:', error);
+    throw error;
+  }
   
   return plantToInterface(data, userData.name);
 }

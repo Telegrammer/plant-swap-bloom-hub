@@ -52,7 +52,16 @@ export function useProfileData(userId?: string) {
     try {
       if (!user) return null;
       
-      const newPlant = await createPlant(plantData);
+      // Convert numeric values to enum string values
+      const convertedPlantData = {
+        ...plantData,
+        waterDemand: convertWaterDemandToEnum(plantData.waterDemand),
+        sunDemand: convertSunDemandToEnum(plantData.sunDemand)
+      };
+      
+      console.log('Sending plant data to API:', convertedPlantData);
+      
+      const newPlant = await createPlant(convertedPlantData);
       
       setUserPlants([...userPlants, newPlant]);
       
@@ -70,6 +79,33 @@ export function useProfileData(userId?: string) {
         variant: "destructive"
       });
       return null;
+    }
+  };
+
+  // Helper functions to convert numeric values to enum strings
+  const convertWaterDemandToEnum = (value: number | string): string => {
+    if (typeof value === 'string' && ['low', 'medium', 'high'].includes(value)) {
+      return value;
+    }
+    
+    switch (Number(value)) {
+      case 1: return 'low';
+      case 2: return 'medium';
+      case 3: return 'high';
+      default: return 'medium';
+    }
+  };
+
+  const convertSunDemandToEnum = (value: number | string): string => {
+    if (typeof value === 'string' && ['low', 'medium', 'high'].includes(value)) {
+      return value;
+    }
+    
+    switch (Number(value)) {
+      case 1: return 'low';
+      case 2: return 'medium';
+      case 3: return 'high';
+      default: return 'medium';
     }
   };
 
