@@ -29,6 +29,14 @@ const plantToInterface = (plant: SupabasePlant, ownerName?: string): Plant => ({
   owner: ownerName || '',
 });
 
+// Helper function to validate enum values
+const validateEnumValue = (value: string, allowedValues: string[]): string => {
+  if (allowedValues.includes(value)) {
+    return value;
+  }
+  return allowedValues[1]; // Return default value (medium)
+};
+
 export async function getPlants(): Promise<Plant[]> {
   const { data, error } = await supabase
     .from('plants')
@@ -94,14 +102,19 @@ export async function createPlant(plantData: Omit<Plant, 'id' | 'owner'>): Promi
   
   if (userError) throw userError;
   
+  // Validate enum values to match Supabase's expected types
+  const validWaterDemand = validateEnumValue(plantData.waterDemand, ['low', 'medium', 'high']);
+  const validSunDemand = validateEnumValue(plantData.sunDemand, ['low', 'medium', 'high']);
+  const validSize = validateEnumValue(plantData.size, ['small', 'medium', 'large']);
+  
   // Convert our Plant interface to Supabase Plant structure
   const supabasePlantData = {
     name: plantData.name,
     description: plantData.description || null,
     image_url: plantData.imageUrl,
-    water_demand: plantData.waterDemand, // Already converted to proper enum format
-    sun_demand: plantData.sunDemand, // Already converted to proper enum format
-    size: plantData.size,
+    water_demand: validWaterDemand,
+    sun_demand: validSunDemand,
+    size: validSize,
     is_indoor: plantData.isIndoor,
     owner_id: user.id
   };
@@ -110,7 +123,7 @@ export async function createPlant(plantData: Omit<Plant, 'id' | 'owner'>): Promi
   
   const { data, error } = await supabase
     .from('plants')
-    .insert([supabasePlantData])
+    .insert(supabasePlantData)  // No longer an array, just a single object
     .select()
     .single();
   
@@ -123,20 +136,30 @@ export async function createPlant(plantData: Omit<Plant, 'id' | 'owner'>): Promi
 }
 
 export async function updatePlant(id: string, plantData: Partial<Plant>): Promise<Plant> {
-  // Convert our Plant interface to Supabase Plant structure
-  const supabasePlantData: Partial<SupabasePlant> = {
+  // Validate enum values to match Supabase's expected types
+  let validatedData: Partial<SupabasePlant> = {
     name: plantData.name,
     description: plantData.description || null,
     image_url: plantData.imageUrl,
-    water_demand: plantData.waterDemand as any,
-    sun_demand: plantData.sunDemand as any,
-    size: plantData.size as any,
     is_indoor: plantData.isIndoor
   };
+
+  // Only add validated enum values if they exist in the update data
+  if (plantData.waterDemand) {
+    validatedData.water_demand = validateEnumValue(plantData.waterDemand, ['low', 'medium', 'high']);
+  }
+
+  if (plantData.sunDemand) {
+    validatedData.sun_demand = validateEnumValue(plantData.sunDemand, ['low', 'medium', 'high']);
+  }
+
+  if (plantData.size) {
+    validatedData.size = validateEnumValue(plantData.size, ['small', 'medium', 'large']);
+  }
   
   const { data, error } = await supabase
     .from('plants')
-    .update(supabasePlantData)
+    .update(validatedData)
     .eq('id', id)
     .select(`
       *,
