@@ -1,170 +1,200 @@
 
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Leaf, RefreshCw, Users } from 'lucide-react';
 import Navbar from '@/components/Navbar';
-import PlantCard from '@/components/PlantCard';
-import ExchangeStatistics from '@/components/ExchangeStatistics';
-import { Plant, getPlants } from '@/api/plants';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
-  const [featuredPlants, setFeaturedPlants] = useState<Plant[]>([]);
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-
+  
   useEffect(() => {
-    const fetchFeaturedPlants = async () => {
+    const getSession = async () => {
       try {
-        const plants = await getPlants();
-        setFeaturedPlants(plants.slice(0, 3));
+        const { data, error } = await supabase.auth.getSession();
+        if (error) {
+          throw error;
+        }
+        setSession(data.session);
       } catch (error) {
-        console.error('Error fetching featured plants:', error);
-        toast({
-          title: "Ошибка загрузки",
-          description: "Не удалось загрузить избранные растения",
-          variant: "destructive"
-        });
+        console.error("Error getting session:", error);
+      } finally {
+        setLoading(false);
       }
     };
-
-    fetchFeaturedPlants();
     
-    const hasVisited = localStorage.getItem('hasVisitedBloomHub');
-    if (!hasVisited) {
-      setTimeout(() => {
-        toast({
-          title: "Добро пожаловать в BloomHub!",
-          description: "Платформа для обмена растениями с единомышленниками.",
-          duration: 5000,
-        });
-        localStorage.setItem('hasVisitedBloomHub', 'true');
-      }, 1000);
+    getSession();
+    
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setSession(session);
+      }
+    );
+    
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleSignUp = async () => {
+    try {
+      const email = prompt('Введите email для регистрации:');
+      const password = prompt('Введите пароль (минимум 6 символов):');
+      
+      if (!email || !password) return;
+      
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Регистрация прошла успешно",
+        description: "Проверьте вашу почту для подтверждения аккаунта",
+      });
+    } catch (error) {
+      console.error("Error signing up:", error);
+      toast({
+        title: "Ошибка при регистрации",
+        description: error.message,
+        variant: "destructive"
+      });
     }
-  }, [toast]);
+  };
+
+  const handleSignIn = async () => {
+    try {
+      const email = prompt('Введите email:');
+      const password = prompt('Введите пароль:');
+      
+      if (!email || !password) return;
+      
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Вход выполнен успешно",
+      });
+    } catch (error) {
+      console.error("Error signing in:", error);
+      toast({
+        title: "Ошибка входа",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      toast({
+        title: "Выход выполнен успешно",
+      });
+    } catch (error) {
+      console.error("Error signing out:", error);
+      toast({
+        title: "Ошибка при выходе",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       
       <main className="page-container">
-        <div className="hero-section">
-          <h1 className="text-4xl md:text-5xl font-bold text-green-800 mb-4">
-            Обменивайтесь<br className="md:hidden" /> растениями <br className="hidden md:block" />
-            и находите <br className="md:hidden" />единомышленников
+        <div className="max-w-3xl mx-auto pt-8 pb-16">
+          <h1 className="text-3xl md:text-4xl font-bold text-green-800 mb-6 text-center">
+            Добро пожаловать в PlantSwap
           </h1>
-          <p className="text-lg text-gray-600 mb-8 max-w-xl">
-            BloomHub - сообщество любителей растений, где можно обмениваться черенками, отростками
-            и взрослыми растениями с другими энтузиастами.
+          
+          <p className="text-lg text-gray-700 mb-8 text-center">
+            Обменивайтесь растениями с другими цветоводами в вашем городе
           </p>
-          <div className="flex flex-wrap gap-4">
-            <Link 
-              to="/plants" 
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors"
-            >
-              <Leaf className="h-5 w-5" />
-              Посмотреть растения
+          
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8 mb-8">
+            <h2 className="text-xl font-bold text-green-800 mb-4">
+              Инструкция по использованию приложения
+            </h2>
+            
+            <div className="space-y-4 mb-6">
+              <p>
+                Для полноценной работы с приложением необходимо:
+              </p>
+              
+              <ol className="list-decimal list-inside space-y-2">
+                <li>Зарегистрироваться в системе через Supabase Auth</li>
+                <li>Наполнить базу данных информацией о пользователях, растениях и обменах</li>
+                <li>Создать профиль пользователя с указанием информации и добавлением растений</li>
+              </ol>
+            </div>
+            
+            <div className="pt-4 border-t border-gray-200">
+              <h3 className="font-medium mb-3">Управление аккаунтом</h3>
+              
+              {loading ? (
+                <div>Загрузка...</div>
+              ) : session ? (
+                <div className="space-y-4">
+                  <p>
+                    Вы вошли в систему как: <strong>{session.user.email}</strong>
+                  </p>
+                  <Button onClick={handleSignOut} variant="outline">
+                    Выйти из аккаунта
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-4">
+                  <Button onClick={handleSignUp}>
+                    Зарегистрироваться
+                  </Button>
+                  <Button onClick={handleSignIn} variant="outline">
+                    Войти в аккаунт
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-6">
+            <Link to="/plants" className="block group">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-full transition-all group-hover:shadow-md group-hover:border-green-200">
+                <h2 className="text-xl font-bold text-green-800 mb-2">
+                  Каталог растений
+                </h2>
+                <p className="text-gray-600">
+                  Просматривайте растения, доступные для обмена
+                </p>
+              </div>
             </Link>
-            <Link 
-              to="/profile" 
-              className="bg-white hover:bg-gray-100 text-green-700 border border-green-600 px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition-colors"
-            >
-              Создать профиль
+            
+            <Link to={session ? "/profile" : "#"} onClick={e => !session && handleSignIn()} className="block group">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-full transition-all group-hover:shadow-md group-hover:border-green-200">
+                <h2 className="text-xl font-bold text-green-800 mb-2">
+                  Мой профиль
+                </h2>
+                <p className="text-gray-600">
+                  {session ? "Управляйте своими растениями" : "Войдите в аккаунт, чтобы увидеть профиль"}
+                </p>
+              </div>
             </Link>
           </div>
         </div>
-        
-        {/* Statistics Section */}
-        <section className="mt-16">
-          <h2 className="section-title">Статистика и популярные растения</h2>
-          <ExchangeStatistics />
-        </section>
-        
-        <section className="mt-16">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="section-title">Избранные растения</h2>
-            <Link 
-              to="/plants" 
-              className="text-green-600 hover:text-green-800 flex items-center gap-1 transition-colors"
-            >
-              Все растения
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredPlants.map((plant) => (
-              <PlantCard key={plant.id} plant={plant} />
-            ))}
-          </div>
-        </section>
-        
-        <section className="mt-16">
-          <h2 className="section-title">Как это работает</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <div className="bg-green-100 rounded-full w-12 h-12 flex items-center justify-center mb-4">
-                <Users className="h-6 w-6 text-green-600" />
-              </div>
-              <h3 className="text-xl font-medium mb-2 text-gray-800">Создайте профиль</h3>
-              <p className="text-gray-600">
-                Зарегистрируйтесь и расскажите о своих растениях, которыми вы готовы поделиться.
-              </p>
-            </div>
-            
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <div className="bg-green-100 rounded-full w-12 h-12 flex items-center justify-center mb-4">
-                <Leaf className="h-6 w-6 text-green-600" />
-              </div>
-              <h3 className="text-xl font-medium mb-2 text-gray-800">Найдите растения</h3>
-              <p className="text-gray-600">
-                Просматривайте каталог растений и находите те, которые вам интересны.
-              </p>
-            </div>
-            
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <div className="bg-green-100 rounded-full w-12 h-12 flex items-center justify-center mb-4">
-                <RefreshCw className="h-6 w-6 text-green-600" />
-              </div>
-              <h3 className="text-xl font-medium mb-2 text-gray-800">Обменивайтесь</h3>
-              <p className="text-gray-600">
-                Свяжитесь с владельцем, договоритесь об обмене и получите новое растение в свою коллекцию.
-              </p>
-            </div>
-          </div>
-        </section>
       </main>
-      
-      <footer className="bg-white border-t border-gray-200 mt-20 py-8">
-        <div className="page-container">
-          <div className="flex flex-col md:flex-row justify-between">
-            <div>
-              <Link to="/" className="flex items-center gap-2 mb-4">
-                <Leaf className="h-5 w-5 text-green-600" />
-                <span className="text-lg font-semibold text-green-700">BloomHub</span>
-              </Link>
-              <p className="text-gray-500 max-w-md">
-                Платформа для обмена растениями с единомышленниками.
-                Выращивайте сообщество вместе с растениями!
-              </p>
-            </div>
-            
-            <div className="mt-6 md:mt-0 space-y-2">
-              <h4 className="font-medium text-gray-800 mb-3">Навигация</h4>
-              <div className="flex flex-col space-y-2">
-                <Link to="/" className="text-gray-600 hover:text-green-600 transition-colors">Главная</Link>
-                <Link to="/plants" className="text-gray-600 hover:text-green-600 transition-colors">Растения</Link>
-                <Link to="/exchanges" className="text-gray-600 hover:text-green-600 transition-colors">Обмены</Link>
-                <Link to="/profile" className="text-gray-600 hover:text-green-600 transition-colors">Профиль</Link>
-              </div>
-            </div>
-          </div>
-          
-          <div className="border-t border-gray-200 mt-8 pt-8 text-center text-gray-500">
-            <p>© {new Date().getFullYear()} BloomHub. Все права защищены.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };

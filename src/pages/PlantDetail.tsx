@@ -1,42 +1,63 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useLocation, Link } from 'react-router-dom';
 import { ArrowLeft, Droplets, Sun, Ruler } from 'lucide-react';
 import Navbar from '@/components/Navbar';
-import PlantCard from '@/components/PlantCard';
 import ExchangeRequest from '@/components/ExchangeRequest';
-import { getPlantById } from '@/api/plants';
+import { getPlantById, getPlants } from '@/api/plants';
 import { getUserById } from '@/api/users';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { toast } from 'sonner';
+import { useToast } from "@/hooks/use-toast";
+import PlantCard from '@/components/PlantCard';
 
 const PlantDetail = () => {
   const { id } = useParams();
-  const location = useLocation();
   const [plant, setPlant] = useState(null);
   const [owner, setOwner] = useState(null);
+  const [similarPlants, setSimilarPlants] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchPlantDetails = async () => {
       try {
         if (id) {
           const fetchedPlant = await getPlantById(id);
+          console.log("Fetched plant:", fetchedPlant);
           setPlant(fetchedPlant);
 
           // Fetch owner details
-          const plantOwner = await getUserById(fetchedPlant.owner);
-          setOwner(plantOwner);
+          if (fetchedPlant.owner) {
+            try {
+              const plantOwner = await getUserById(fetchedPlant.owner);
+              console.log("Fetched owner:", plantOwner);
+              setOwner(plantOwner);
+            } catch (ownerError) {
+              console.error("Error fetching plant owner:", ownerError);
+            }
+          }
+
+          // Fetch similar plants
+          const allPlants = await getPlants();
+          const similar = allPlants
+            .filter(p => p.id !== fetchedPlant.id && p.size === fetchedPlant.size)
+            .slice(0, 3);
+          setSimilarPlants(similar);
         }
       } catch (error) {
-        toast.error('Не удалось загрузить информацию о растении');
-        console.error(error);
+        console.error("Error fetching plant details:", error);
+        toast({
+          title: "Ошибка загрузки",
+          description: "Не удалось загрузить информацию о растении",
+          variant: "destructive"
+        });
       } finally {
         setLoading(false);
       }
     };
 
     fetchPlantDetails();
-  }, [id]);
+  }, [id, toast]);
 
   if (loading) {
     return (
@@ -116,44 +137,47 @@ const PlantDetail = () => {
               <div className="border-t border-gray-200 pt-6 mb-6">
                 <h3 className="font-medium text-lg mb-3">Владелец</h3>
                 
-                <Link to={`/profile/${owner?.id}`} className="flex items-center gap-3 group">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={owner?.profileImageUrl} alt={owner?.name} />
-                    <AvatarFallback>{owner?.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium text-green-700 group-hover:text-green-800">
-                      {plant.owner}
-                    </p>
-                    {owner && <p className="text-sm text-gray-500">{owner.location}</p>}
-                  </div>
-                </Link>
+                {owner && (
+                  <Link to={`/profile/${owner.id}`} className="flex items-center gap-3 group">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={owner.profileImageUrl} alt={owner.name} />
+                      <AvatarFallback>{owner.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium text-green-700 group-hover:text-green-800">
+                        {owner.name}
+                      </p>
+                      {owner.location && <p className="text-sm text-gray-500">{owner.location}</p>}
+                    </div>
+                  </Link>
+                )}
               </div>
             </div>
           </div>
         </div>
         
-        <div className="mt-8">
-          <ExchangeRequest 
-            plantId={plant.id} 
-            plantName={plant.name} 
-            ownerId={owner?.id || 0} 
-            ownerName={plant.owner} 
-          />
-        </div>
-        
-        <div className="mt-12">
-          <h2 className="section-title">Похожие растения</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-            {/*mockPlants
-              .filter(p => p.id !== plant.id && p.type === plant.type)
-              .slice(0, 3)
-              .map(p => (
-                <PlantCard key={p.id} plant={p} />
-              ))*/}
+        {owner && (
+          <div className="mt-8">
+            <ExchangeRequest 
+              plantId={plant.id} 
+              plantName={plant.name} 
+              ownerId={owner.id} 
+              ownerName={owner.name} 
+            />
           </div>
-        </div>
+        )}
+        
+        {similarPlants.length > 0 && (
+          <div className="mt-12">
+            <h2 className="text-xl font-bold text-green-800 mb-4">Похожие растения</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+              {similarPlants.map(p => (
+                <PlantCard key={p.id} plant={p} />
+              ))}
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

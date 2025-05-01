@@ -4,7 +4,7 @@ import Navbar from '@/components/Navbar';
 import PlantCard from '@/components/PlantCard';
 import PlantFilter from '@/components/PlantFilter';
 import { getPlants } from '@/api/plants';
-import { toast } from 'sonner';
+import { useToast } from "@/hooks/use-toast";
 
 const Plants = () => {
   const [plants, setPlants] = useState([]);
@@ -15,45 +15,51 @@ const Plants = () => {
     sunDemands: []
   });
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchPlants = async () => {
       try {
         const fetchedPlants = await getPlants();
+        console.log("Fetched plants:", fetchedPlants);
         setPlants(fetchedPlants);
         setFilteredPlants(fetchedPlants);
       } catch (error) {
-        toast.error('Не удалось загрузить список растений');
-        console.error(error);
+        console.error("Error fetching plants:", error);
+        toast({
+          title: "Ошибка загрузки",
+          description: "Не удалось загрузить список растений",
+          variant: "destructive"
+        });
       } finally {
         setLoading(false);
       }
     };
 
     fetchPlants();
-  }, []);
+  }, [toast]);
 
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
     
-    // Применяем фильтры
+    // Apply filters
     let filteredPlantsResult = [...plants];
     
-    // Фильтр по размеру
+    // Filter by size
     if (newFilters.sizes.length > 0) {
       filteredPlantsResult = filteredPlantsResult.filter(plant => 
         newFilters.sizes.includes(plant.size)
       );
     }
     
-    // Фильтр по поливу
+    // Filter by water demand
     if (newFilters.waterDemands.length > 0) {
       filteredPlantsResult = filteredPlantsResult.filter(plant => 
         newFilters.waterDemands.includes(plant.waterDemand)
       );
     }
     
-    // Фильтр по освещению
+    // Filter by sun demand
     if (newFilters.sunDemands.length > 0) {
       filteredPlantsResult = filteredPlantsResult.filter(plant => 
         newFilters.sunDemands.includes(plant.sunDemand)

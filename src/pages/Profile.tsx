@@ -12,7 +12,7 @@ import { useProfileData } from '@/hooks/useProfileData';
 const Profile = () => {
   const { id } = useParams();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [deleteDialogState, setDeleteDialogState] = useState({ isOpen: false, plantId: null, plantName: '' });
+  const [deleteDialogState, setDeleteDialogState] = useState({ isOpen: false, plantId: '', plantName: '' });
   const { toast } = useToast();
   
   const { 
@@ -43,7 +43,7 @@ const Profile = () => {
         });
       }
     } finally {
-      setDeleteDialogState({ isOpen: false, plantId: null, plantName: '' });
+      setDeleteDialogState({ isOpen: false, plantId: '', plantName: '' });
     }
   };
 
@@ -72,6 +72,9 @@ const Profile = () => {
         <div className="page-container text-center py-16">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Пользователь не найден</h2>
           <p className="text-gray-600">К сожалению, пользователь с указанным ID не существует.</p>
+          <p className="text-gray-600 mt-2">
+            Возможно, нужно создать пользователей через Supabase Auth перед использованием этой функции.
+          </p>
         </div>
       </div>
     );
@@ -100,7 +103,7 @@ const Profile = () => {
       
       <DeletePlantDialog
         isOpen={deleteDialogState.isOpen}
-        onClose={() => setDeleteDialogState({ isOpen: false, plantId: null, plantName: '' })}
+        onClose={() => setDeleteDialogState({ isOpen: false, plantId: '', plantName: '' })}
         onConfirm={confirmDeletePlant}
         plantName={deleteDialogState.plantName}
       />
