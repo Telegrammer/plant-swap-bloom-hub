@@ -49,24 +49,24 @@ const PlantCard = ({ plant }: PlantCardProps) => {
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow">
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 h-full flex flex-col">
       <Link
-        className="block"
+        className="block flex-grow"
         to={`/plants/${plant.id}`}
       >
-        <div className="h-48 overflow-hidden">
+        <div className="h-52 overflow-hidden">
           <img 
-            className="w-full h-full object-cover" 
+            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105" 
             src={plant.imageUrl || '/placeholder.svg'} 
             alt={`Фото растения ${plant.name}`}
           />
         </div>
         
         <CardHeader className="pb-2">
-          <CardTitle>{plant.name}</CardTitle>
+          <CardTitle className="text-green-700">{plant.name}</CardTitle>
         </CardHeader>
         
-        <CardContent className="pb-2">
+        <CardContent className="pb-4">
           <div className="flex flex-wrap gap-2 mb-4">
             <div className="flex items-center gap-1 text-sm bg-blue-50 text-blue-700 px-2 py-1 rounded-full">
               <Droplets className="h-3 w-3" />
@@ -84,11 +84,11 @@ const PlantCard = ({ plant }: PlantCardProps) => {
         </CardContent>
       </Link>
       
-      <CardFooter className="pt-0 border-t">
+      <CardFooter className="pt-0 border-t mt-auto">
         <div className="w-full">
           <p className="text-sm text-gray-500 mb-1">Владелец:</p>
           <Link 
-            className="text-green-700 hover:text-green-900 font-medium"
+            className="text-green-700 hover:text-green-900 font-medium flex items-center"
             to={profileLink}
             onClick={(e) => e.stopPropagation()}
           >
