@@ -76,20 +76,20 @@ const PlantFilter = ({ onFilterChange }: PlantFilterProps) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
           <DropdownMenuCheckboxItem
-            checked={sizes.includes("Маленький")}
-            onCheckedChange={() => handleSizeChange("Маленький")}
+            checked={sizes.includes("small")}
+            onCheckedChange={() => handleSizeChange("small")}
           >
             Маленький
           </DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem
-            checked={sizes.includes("Средний")}
-            onCheckedChange={() => handleSizeChange("Средний")}
+            checked={sizes.includes("medium")}
+            onCheckedChange={() => handleSizeChange("medium")}
           >
             Средний
           </DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem
-            checked={sizes.includes("Большой")}
-            onCheckedChange={() => handleSizeChange("Большой")}
+            checked={sizes.includes("large")}
+            onCheckedChange={() => handleSizeChange("large")}
           >
             Большой
           </DropdownMenuCheckboxItem>
@@ -103,20 +103,20 @@ const PlantFilter = ({ onFilterChange }: PlantFilterProps) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
           <DropdownMenuCheckboxItem
-            checked={waterDemands.includes("Редкий полив")}
-            onCheckedChange={() => handleWaterChange("Редкий полив")}
+            checked={waterDemands.includes("low")}
+            onCheckedChange={() => handleWaterChange("low")}
           >
             Редкий полив
           </DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem
-            checked={waterDemands.includes("Умеренный полив")}
-            onCheckedChange={() => handleWaterChange("Умеренный полив")}
+            checked={waterDemands.includes("medium")}
+            onCheckedChange={() => handleWaterChange("medium")}
           >
             Умеренный полив
           </DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem
-            checked={waterDemands.includes("Частый полив")}
-            onCheckedChange={() => handleWaterChange("Частый полив")}
+            checked={waterDemands.includes("high")}
+            onCheckedChange={() => handleWaterChange("high")}
           >
             Частый полив
           </DropdownMenuCheckboxItem>
@@ -130,28 +130,22 @@ const PlantFilter = ({ onFilterChange }: PlantFilterProps) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
           <DropdownMenuCheckboxItem
-            checked={sunDemands.includes("Полутень")}
-            onCheckedChange={() => handleSunChange("Полутень")}
+            checked={sunDemands.includes("low")}
+            onCheckedChange={() => handleSunChange("low")}
           >
             Полутень
           </DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem
-            checked={sunDemands.includes("Рассеянный свет")}
-            onCheckedChange={() => handleSunChange("Рассеянный свет")}
+            checked={sunDemands.includes("medium")}
+            onCheckedChange={() => handleSunChange("medium")}
           >
             Рассеянный свет
           </DropdownMenuCheckboxItem>
           <DropdownMenuCheckboxItem
-            checked={sunDemands.includes("Яркий свет")}
-            onCheckedChange={() => handleSunChange("Яркий свет")}
+            checked={sunDemands.includes("high")}
+            onCheckedChange={() => handleSunChange("high")}
           >
             Яркий свет
-          </DropdownMenuCheckboxItem>
-          <DropdownMenuCheckboxItem
-            checked={sunDemands.includes("Любой свет")}
-            onCheckedChange={() => handleSunChange("Любой свет")}
-          >
-            Любой свет
           </DropdownMenuCheckboxItem>
         </DropdownMenuContent>
       </DropdownMenu>
