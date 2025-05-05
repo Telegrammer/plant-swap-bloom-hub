@@ -1,5 +1,7 @@
 
 import { Link } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Droplets, Sun, Ruler } from 'lucide-react';
 
 interface PlantCardProps {
   plant: {
@@ -9,14 +11,14 @@ interface PlantCardProps {
     waterDemand: string;
     sunDemand: string;
     size: string;
-    ownerProfileLink?: string;
     owner: string;
+    ownerName?: string;
   };
 }
 
 const PlantCard = ({ plant }: PlantCardProps) => {
-  // Generate a profile link if one is not provided
-  const profileLink = plant.ownerProfileLink || `/profile/${plant.id}`;
+  // Generate a profile link for the plant owner
+  const profileLink = `/profile/${plant.owner}`;
   
   // Translate database values to Russian display values
   const getWaterDemandText = (demand: string) => {
@@ -47,42 +49,54 @@ const PlantCard = ({ plant }: PlantCardProps) => {
   };
 
   return (
-    <Link
-      className="card-link"
-      to={`/plants/${plant.id}`}
-      state={{ plant }}
-    >
-      <div className="card-canvas">
-        <h3 className="card-title">{plant.name}</h3>
-        <img 
-          className="card-image" 
-          src={plant.imageUrl || '/placeholder.svg'} 
-          alt={`Фото растения ${plant.name}`}
-        />
-        <div className="card-plant-attributes-list">
-          <div className="water-demand-attribute">
-            {getWaterDemandText(plant.waterDemand)}
-          </div>
-          <div className="sun-demand-attribute">
-            {getSunDemandText(plant.sunDemand)}
-          </div>
-          <div className="size-attribute">
-            {getSizeText(plant.size)}
-          </div>
+    <Card className="overflow-hidden hover:shadow-md transition-shadow">
+      <Link
+        className="block"
+        to={`/plants/${plant.id}`}
+      >
+        <div className="h-48 overflow-hidden">
+          <img 
+            className="w-full h-full object-cover" 
+            src={plant.imageUrl || '/placeholder.svg'} 
+            alt={`Фото растения ${plant.name}`}
+          />
         </div>
         
-        <div className="card-contacts">
-          <p><b>Владелец:</b></p>
+        <CardHeader className="pb-2">
+          <CardTitle>{plant.name}</CardTitle>
+        </CardHeader>
+        
+        <CardContent className="pb-2">
+          <div className="flex flex-wrap gap-2 mb-4">
+            <div className="flex items-center gap-1 text-sm bg-blue-50 text-blue-700 px-2 py-1 rounded-full">
+              <Droplets className="h-3 w-3" />
+              <span>{getWaterDemandText(plant.waterDemand)}</span>
+            </div>
+            <div className="flex items-center gap-1 text-sm bg-yellow-50 text-yellow-700 px-2 py-1 rounded-full">
+              <Sun className="h-3 w-3" />
+              <span>{getSunDemandText(plant.sunDemand)}</span>
+            </div>
+            <div className="flex items-center gap-1 text-sm bg-green-50 text-green-700 px-2 py-1 rounded-full">
+              <Ruler className="h-3 w-3" />
+              <span>{getSizeText(plant.size)}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Link>
+      
+      <CardFooter className="pt-0 border-t">
+        <div className="w-full">
+          <p className="text-sm text-gray-500 mb-1">Владелец:</p>
           <Link 
-            className="owner-link" 
+            className="text-green-700 hover:text-green-900 font-medium"
             to={profileLink}
             onClick={(e) => e.stopPropagation()}
           >
-            {plant.owner}
+            {plant.ownerName || 'Просмотреть профиль'}
           </Link>
         </div>
-      </div>
-    </Link>
+      </CardFooter>
+    </Card>
   );
 };
 

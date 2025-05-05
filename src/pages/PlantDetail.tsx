@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useParams, useLocation, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Droplets, Sun, Ruler } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import ExchangeRequest from '@/components/ExchangeRequest';
@@ -29,7 +29,10 @@ const PlantDetail = () => {
           // Fetch owner details
           if (fetchedPlant.owner) {
             try {
-              const plantOwner = await getUserById(fetchedPlant.owner);
+              // Make sure owner is a valid UUID before fetching
+              const ownerId = fetchedPlant.owner;
+              console.log("Fetching owner with ID:", ownerId);
+              const plantOwner = await getUserById(ownerId);
               console.log("Fetched owner:", plantOwner);
               setOwner(plantOwner);
             } catch (ownerError) {
