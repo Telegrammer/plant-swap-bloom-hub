@@ -17,23 +17,8 @@ interface PlantCardProps {
 }
 
 const PlantCard = ({ plant }: PlantCardProps) => {
-  // Handle case when owner might not be a UUID format
-  let profileLink = '/profile';
-  
-  if (plant.owner) {
-    try {
-      // Simple check if format looks like UUID
-      if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(plant.owner)) {
-        profileLink = `/profile/${plant.owner}`;
-      } else {
-        // If owner is not in UUID format, use it as username
-        profileLink = `/profile/${plant.owner}`;
-      }
-    } catch (e) {
-      console.log("Error processing owner ID:", e);
-      profileLink = `/profile/${plant.owner}`;
-    }
-  }
+  // Simplified profile link, no need to validate UUID format
+  const profileLink = `/profile/${plant.owner}`;
   
   // Translate database values to Russian display values
   const getWaterDemandText = (demand: string) => {
