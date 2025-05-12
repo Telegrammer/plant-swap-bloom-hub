@@ -31,23 +31,13 @@ const PlantDetail = () => {
           // Fetch owner details
           if (fetchedPlant.owner) {
             try {
-              // Since the owner may not be a UUID, we'll handle it differently
+              // Get the owner ID from the plant data
               const ownerId = fetchedPlant.owner;
               console.log("Fetching owner with ID:", ownerId);
               
-              // Check if the ID looks like a UUID (simple check)
-              if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(ownerId)) {
-                const plantOwner = await getUserById(ownerId);
-                console.log("Fetched owner:", plantOwner);
-                setOwner(plantOwner);
-              } else {
-                // If not a UUID format, create basic owner information
-                setOwner({
-                  id: ownerId,
-                  name: fetchedPlant.ownerName || ownerId,
-                  profileImageUrl: null
-                });
-              }
+              const plantOwner = await getUserById(ownerId);
+              console.log("Fetched owner:", plantOwner);
+              setOwner(plantOwner);
             } catch (ownerError) {
               console.error("Error fetching plant owner:", ownerError);
               // Create fallback owner information in case of error

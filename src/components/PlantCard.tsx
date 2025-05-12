@@ -17,7 +17,8 @@ interface PlantCardProps {
 }
 
 const PlantCard = ({ plant }: PlantCardProps) => {
-  // Simplified profile link, no need to validate UUID format
+  // Make sure we're using owner as ID for the profile link
+  // If owner field contains a username instead of ID, this needs to be fixed in the data source
   const profileLink = `/profile/${plant.owner}`;
   
   // Translate database values to Russian display values
