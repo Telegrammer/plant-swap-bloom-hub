@@ -4,7 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Droplets, Sun, Ruler } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import ExchangeRequest from '@/components/ExchangeRequest';
-import { getPlantById, getPlants } from '@/api/plants';
+import { getPlantById, getPlants, Plant } from '@/api/plants';
 import { getUserById } from '@/api/users';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
@@ -12,9 +12,9 @@ import PlantCard from '@/components/PlantCard';
 
 const PlantDetail = () => {
   const { id } = useParams();
-  const [plant, setPlant] = useState(null);
+  const [plant, setPlant] = useState<Plant | null>(null);
   const [owner, setOwner] = useState(null);
-  const [similarPlants, setSimilarPlants] = useState([]);
+  const [similarPlants, setSimilarPlants] = useState<Plant[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -29,17 +29,17 @@ const PlantDetail = () => {
           // Fetch owner details
           if (fetchedPlant.owner) {
             try {
-              // Поскольку владелец может быть не UUID, мы будем обрабатывать его по-другому
+              // Since the owner may not be a UUID, we'll handle it differently
               const ownerId = fetchedPlant.owner;
               console.log("Fetching owner with ID:", ownerId);
               
-              // Проверяем, похож ли ID на UUID (примитивная проверка)
+              // Check if the ID looks like a UUID (simple check)
               if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(ownerId)) {
                 const plantOwner = await getUserById(ownerId);
                 console.log("Fetched owner:", plantOwner);
                 setOwner(plantOwner);
               } else {
-                // Если не UUID формат, создаем базовую информацию о владельце
+                // If not a UUID format, create basic owner information
                 setOwner({
                   id: ownerId,
                   name: fetchedPlant.ownerName || ownerId,
@@ -48,7 +48,7 @@ const PlantDetail = () => {
               }
             } catch (ownerError) {
               console.error("Error fetching plant owner:", ownerError);
-              // Создаем резервную информацию о владельце в случае ошибки
+              // Create fallback owner information in case of error
               if (fetchedPlant.owner) {
                 setOwner({
                   id: fetchedPlant.owner,

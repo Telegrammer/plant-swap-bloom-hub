@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Plant as SupabasePlant, Profile } from '@/types/supabase-types';
 
@@ -13,6 +12,7 @@ export interface Plant {
   isIndoor: boolean;
   types?: string[];
   owner: string;
+  ownerName?: string; // Add this property to fix the type error
 }
 
 // Helper function to convert Supabase Plant to our Plant interface
