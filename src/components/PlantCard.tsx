@@ -17,8 +17,23 @@ interface PlantCardProps {
 }
 
 const PlantCard = ({ plant }: PlantCardProps) => {
-  // Generate a profile link for the plant owner
-  const profileLink = `/profile/${plant.owner}`;
+  // Обрабатываем случай когда owner может быть не UUID форматом
+  let profileLink = '/profile';
+  
+  if (plant.owner) {
+    try {
+      // Проверяем, похож ли формат на UUID (простая проверка)
+      if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(plant.owner)) {
+        profileLink = `/profile/${plant.owner}`;
+      } else {
+        // Если owner не в формате UUID, используем его как username
+        profileLink = `/profile/${plant.owner}`;
+      }
+    } catch (e) {
+      console.log("Ошибка при обработке ID владельца:", e);
+      profileLink = `/profile/${plant.owner}`;
+    }
+  }
   
   // Translate database values to Russian display values
   const getWaterDemandText = (demand: string) => {

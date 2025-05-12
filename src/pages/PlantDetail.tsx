@@ -29,14 +29,33 @@ const PlantDetail = () => {
           // Fetch owner details
           if (fetchedPlant.owner) {
             try {
-              // Make sure owner is a valid UUID before fetching
+              // Поскольку владелец может быть не UUID, мы будем обрабатывать его по-другому
               const ownerId = fetchedPlant.owner;
               console.log("Fetching owner with ID:", ownerId);
-              const plantOwner = await getUserById(ownerId);
-              console.log("Fetched owner:", plantOwner);
-              setOwner(plantOwner);
+              
+              // Проверяем, похож ли ID на UUID (примитивная проверка)
+              if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(ownerId)) {
+                const plantOwner = await getUserById(ownerId);
+                console.log("Fetched owner:", plantOwner);
+                setOwner(plantOwner);
+              } else {
+                // Если не UUID формат, создаем базовую информацию о владельце
+                setOwner({
+                  id: ownerId,
+                  name: fetchedPlant.ownerName || ownerId,
+                  profileImageUrl: null
+                });
+              }
             } catch (ownerError) {
               console.error("Error fetching plant owner:", ownerError);
+              // Создаем резервную информацию о владельце в случае ошибки
+              if (fetchedPlant.owner) {
+                setOwner({
+                  id: fetchedPlant.owner,
+                  name: fetchedPlant.ownerName || 'Неизвестный пользователь',
+                  profileImageUrl: null
+                });
+              }
             }
           }
 
@@ -109,33 +128,33 @@ const PlantDetail = () => {
           <div className="md:flex">
             <div className="md:w-1/2">
               <img 
-                src={plant.imageUrl} 
-                alt={plant.name} 
+                src={plant?.imageUrl} 
+                alt={plant?.name} 
                 className="h-80 w-full object-cover md:h-full"
               />
             </div>
             
             <div className="p-6 md:p-8 md:w-1/2">
-              <h1 className="text-2xl md:text-3xl font-bold text-green-800 mb-2">{plant.name}</h1>
-              <p className="text-gray-500 mb-6">{plant.type}</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-green-800 mb-2">{plant?.name}</h1>
+              <p className="text-gray-500 mb-6">{plant?.type}</p>
               
               <div className="flex flex-wrap gap-3 mb-6">
                 <div className="flex items-center gap-1 bg-blue-50 text-blue-700 px-3 py-1 rounded-full">
                   <Droplets className="h-4 w-4" />
-                  <span>{plant.waterDemand}</span>
+                  <span>{plant?.waterDemand}</span>
                 </div>
                 <div className="flex items-center gap-1 bg-yellow-50 text-yellow-700 px-3 py-1 rounded-full">
                   <Sun className="h-4 w-4" />
-                  <span>{plant.sunDemand}</span>
+                  <span>{plant?.sunDemand}</span>
                 </div>
                 <div className="flex items-center gap-1 bg-green-50 text-green-700 px-3 py-1 rounded-full">
                   <Ruler className="h-4 w-4" />
-                  <span>{plant.size}</span>
+                  <span>{plant?.size}</span>
                 </div>
               </div>
               
               <h3 className="font-medium text-lg mb-2">Описание</h3>
-              <p className="text-gray-700 mb-6">{plant.description}</p>
+              <p className="text-gray-700 mb-6">{plant?.description}</p>
               
               <div className="border-t border-gray-200 pt-6 mb-6">
                 <h3 className="font-medium text-lg mb-3">Владелец</h3>
@@ -162,8 +181,8 @@ const PlantDetail = () => {
         {owner && (
           <div className="mt-8">
             <ExchangeRequest 
-              plantId={plant.id} 
-              plantName={plant.name} 
+              plantId={plant?.id} 
+              plantName={plant?.name} 
               ownerId={owner.id} 
               ownerName={owner.name} 
             />
