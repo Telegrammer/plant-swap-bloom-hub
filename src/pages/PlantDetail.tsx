@@ -136,7 +136,8 @@ const PlantDetail = () => {
             
             <div className="p-6 md:p-8 md:w-1/2">
               <h1 className="text-2xl md:text-3xl font-bold text-green-800 mb-2">{plant?.name}</h1>
-              <p className="text-gray-500 mb-6">{plant?.type}</p>
+              {/* Removing the reference to plant?.type which doesn't exist */}
+              <p className="text-gray-500 mb-6">{plant?.types?.join(', ')}</p>
               
               <div className="flex flex-wrap gap-3 mb-6">
                 <div className="flex items-center gap-1 bg-blue-50 text-blue-700 px-3 py-1 rounded-full">
