@@ -39,61 +39,6 @@ const Index = () => {
     };
   }, []);
 
-  const handleSignUp = async () => {
-    try {
-      const email = prompt('Введите email для регистрации:');
-      const password = prompt('Введите пароль (минимум 6 символов):');
-      
-      if (!email || !password) return;
-      
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-      
-      if (error) throw error;
-      
-      toast({
-        title: "Регистрация прошла успешно",
-        description: "Проверьте вашу почту для подтверждения аккаунта",
-      });
-    } catch (error) {
-      console.error("Error signing up:", error);
-      toast({
-        title: "Ошибка при регистрации",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleSignIn = async () => {
-    try {
-      const email = prompt('Введите email:');
-      const password = prompt('Введите пароль:');
-      
-      if (!email || !password) return;
-      
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      
-      if (error) throw error;
-      
-      toast({
-        title: "Вход выполнен успешно",
-      });
-    } catch (error) {
-      console.error("Error signing in:", error);
-      toast({
-        title: "Ошибка входа",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
-  };
-
   const handleSignOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -159,12 +104,11 @@ const Index = () => {
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-4">
-                  <Button onClick={handleSignUp}>
-                    Зарегистрироваться
-                  </Button>
-                  <Button onClick={handleSignIn} variant="outline">
-                    Войти в аккаунт
-                  </Button>
+                  <Link to="/auth">
+                    <Button>
+                      Регистрация / Вход
+                    </Button>
+                  </Link>
                 </div>
               )}
             </div>
@@ -182,7 +126,7 @@ const Index = () => {
               </div>
             </Link>
             
-            <Link to={session ? "/profile" : "#"} onClick={e => !session && handleSignIn()} className="block group">
+            <Link to={session ? "/profile" : "/auth"} className="block group">
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 h-full transition-all group-hover:shadow-md group-hover:border-green-200">
                 <h2 className="text-xl font-bold text-green-800 mb-2">
                   Мой профиль

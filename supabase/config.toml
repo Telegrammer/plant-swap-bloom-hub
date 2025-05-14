@@ -1,1 +1,9 @@
+
 project_id = "pjifpblazlsecdgskuwc"
+
+[triggers]
+[triggers.handle_new_user]
+table = "auth.users"
+when = "AFTER INSERT"
+for = "FOR EACH ROW"
+function = "public.handle_new_user"

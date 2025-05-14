@@ -14,10 +14,12 @@ interface AuthFormProps {
 export const AuthForm = ({ mode, onSuccess }: AuthFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [location, setLocation] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     
@@ -26,6 +28,12 @@ export const AuthForm = ({ mode, onSuccess }: AuthFormProps) => {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            data: {
+              name,
+              location
+            }
+          }
         });
         
         if (error) throw error;
@@ -62,6 +70,33 @@ export const AuthForm = ({ mode, onSuccess }: AuthFormProps) => {
   
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {mode === 'signup' && (
+        <>
+          <div className="space-y-2">
+            <Label htmlFor="name">Имя пользователя</Label>
+            <Input
+              id="name"
+              type="text"
+              placeholder="Введите ваше имя"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="location">Город</Label>
+            <Input
+              id="location"
+              type="text"
+              placeholder="Укажите ваш город"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+            />
+          </div>
+        </>
+      )}
+      
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input
