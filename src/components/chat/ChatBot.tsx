@@ -1,13 +1,17 @@
+
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, Send, X, ChevronDown } from 'lucide-react';
+import { MessageCircle, Send, X, ChevronDown, Settings } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { ChatMessage } from './ChatMessage';
-import { getSuggestedQuestions, generateBotResponse } from '@/services/chatService';
+import { getSuggestedQuestions, generateBotResponse, setApiKey, setApiUrl, setAiModel } from '@/services/chatService';
 import { cn } from '@/lib/utils';
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,6 +23,12 @@ export const ChatBot = () => {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const isMobile = useIsMobile();
+  
+  // Настройки API
+  const [apiKey, setApiKeyValue] = useState('');
+  const [apiUrl, setApiUrlValue] = useState('https://api.openai.com/v1/chat/completions');
+  const [apiModel, setApiModelValue] = useState('gpt-4o-mini');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -61,6 +71,22 @@ export const ChatBot = () => {
   const handleOpen = (open: boolean) => {
     setIsOpen(open);
   };
+  
+  const handleSaveSettings = () => {
+    setApiKey(apiKey);
+    setApiUrl(apiUrl);
+    setAiModel(apiModel);
+    setIsSettingsOpen(false);
+    
+    // Добавляем системное сообщение о настройке API
+    if (apiKey) {
+      setMessages(prev => [...prev, {
+        text: "API настройки сохранены. Теперь я могу отвечать на ваши вопросы с помощью нейросети.", 
+        isUser: false,
+        id: Date.now().toString()
+      }]);
+    }
+  };
 
   const ChatTrigger = (
     <Button 
@@ -69,15 +95,60 @@ export const ChatBot = () => {
       <MessageCircle className="h-6 w-6" />
     </Button>
   );
+  
+  const SettingsDialog = (
+    <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Настройки API нейросети</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="apiKey">API ключ</Label>
+            <Input
+              id="apiKey"
+              value={apiKey}
+              onChange={(e) => setApiKeyValue(e.target.value)}
+              placeholder="sk-..." 
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="apiUrl">URL API</Label>
+            <Input
+              id="apiUrl"
+              value={apiUrl}
+              onChange={(e) => setApiUrlValue(e.target.value)}
+              placeholder="https://api.openai.com/v1/chat/completions"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="apiModel">Модель</Label>
+            <Input
+              id="apiModel"
+              value={apiModel}
+              onChange={(e) => setApiModelValue(e.target.value)}
+              placeholder="gpt-4o-mini"
+            />
+          </div>
+          <Button onClick={handleSaveSettings} className="mt-2">Сохранить</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 
   const ChatContent = (
     <div className="flex flex-col h-full">
       <SheetHeader className="border-b p-4">
         <SheetTitle className="flex items-center justify-between">
           <span>Чат с BloomBot</span>
-          <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
-            <X className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center">
+            <Button variant="ghost" size="icon" onClick={() => setIsSettingsOpen(true)}>
+              <Settings className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </SheetTitle>
       </SheetHeader>
 
@@ -148,6 +219,7 @@ export const ChatBot = () => {
           </SheetTrigger>
           <SheetContent className="w-[380px] sm:w-[440px] p-0" side="right">
             {ChatContent}
+            {SettingsDialog}
           </SheetContent>
         </Sheet>
       )}
