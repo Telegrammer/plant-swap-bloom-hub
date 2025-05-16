@@ -7,12 +7,15 @@ import { AddPlantDialog } from '@/components/AddPlantDialog';
 import { DeletePlantDialog } from '@/components/DeletePlantDialog';
 import UserProfileHeader from '@/components/profile/UserProfileHeader';
 import UserPlantsGrid from '@/components/profile/UserPlantsGrid';
+import { EditProfileDialog } from '@/components/profile/EditProfileDialog';
 import { useProfileData } from '@/hooks/useProfileData';
+import { User } from '@/api/users';
 
 const Profile = () => {
   const { id } = useParams();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [deleteDialogState, setDeleteDialogState] = useState({ isOpen: false, plantId: '', plantName: '' });
+  const [isEditProfileDialogOpen, setIsEditProfileDialogOpen] = useState(false);
   const { toast } = useToast();
   
   const { 
@@ -21,7 +24,8 @@ const Profile = () => {
     loading, 
     isOwnProfile,
     handleAddPlant,
-    handleDeletePlant 
+    handleDeletePlant,
+    setUser
   } = useProfileData(id);
 
   const handleOpenDeleteDialog = (plantId, plantName) => {
@@ -52,6 +56,10 @@ const Profile = () => {
     if (newPlant) {
       setIsAddDialogOpen(false);
     }
+  };
+
+  const handleProfileUpdate = (updatedUser: User) => {
+    setUser(updatedUser);
   };
 
   if (loading) {
@@ -85,7 +93,11 @@ const Profile = () => {
       <Navbar />
       
       <main className="page-container">
-        <UserProfileHeader user={user} />
+        <UserProfileHeader 
+          user={user} 
+          isOwnProfile={isOwnProfile}
+          onEditProfile={() => setIsEditProfileDialogOpen(true)}
+        />
         
         <UserPlantsGrid 
           plants={userPlants} 
@@ -107,6 +119,15 @@ const Profile = () => {
         onConfirm={confirmDeletePlant}
         plantName={deleteDialogState.plantName}
       />
+
+      {user && (
+        <EditProfileDialog
+          isOpen={isEditProfileDialogOpen}
+          onClose={() => setIsEditProfileDialogOpen(false)}
+          user={user}
+          onProfileUpdate={handleProfileUpdate}
+        />
+      )}
     </div>
   );
 };

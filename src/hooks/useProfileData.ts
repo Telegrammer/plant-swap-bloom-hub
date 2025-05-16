@@ -132,6 +132,7 @@ export function useProfileData(userId?: string) {
     loading,
     isOwnProfile,
     handleAddPlant,
-    handleDeletePlant
+    handleDeletePlant,
+    setUser
   };
 }
