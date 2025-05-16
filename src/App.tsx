@@ -8,6 +8,7 @@ import Exchanges from './pages/Exchanges';
 import Auth from './pages/Auth';
 import NotFound from './pages/NotFound';
 import { Toaster } from './components/ui/toaster';
+import { ChatBot } from './components/chat/ChatBot';
 import './App.css';
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
         <Route path="/auth" element={<Auth />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <ChatBot />
       <Toaster />
     </Router>
   );
