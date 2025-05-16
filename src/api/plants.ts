@@ -2,7 +2,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Plant as SupabasePlant, Profile } from '@/types/supabase-types';
 
 export interface Plant {
-  id: string; // Changed from number to string to match Supabase
+  id: string;
   name: string;
   description?: string;
   imageUrl: string | null;
@@ -12,11 +12,11 @@ export interface Plant {
   isIndoor: boolean;
   types?: string[];
   owner: string;
-  ownerName?: string; // Add this property to fix the type error
+  ownerName?: string;
 }
 
 // Helper function to convert Supabase Plant to our Plant interface
-const plantToInterface = (plant: SupabasePlant, ownerName?: string): Plant => ({
+const plantToInterface = (plant: SupabasePlant, ownerProfile?: any): Plant => ({
   id: plant.id,
   name: plant.name,
   description: plant.description || undefined,
@@ -26,7 +26,8 @@ const plantToInterface = (plant: SupabasePlant, ownerName?: string): Plant => ({
   size: plant.size,
   isIndoor: plant.is_indoor || false,
   types: [], // Supabase doesn't have a types field, so defaulting to empty array
-  owner: ownerName || '',
+  owner: plant.owner_id,
+  ownerName: ownerProfile?.name || undefined,
 });
 
 // Helper function to validate enum values
@@ -48,8 +49,8 @@ export async function getPlants(): Promise<Plant[]> {
   if (error) throw error;
   
   return (data || []).map(plant => {
-    const owner = plant.profiles as unknown as Profile;
-    return plantToInterface(plant, owner?.name);
+    const ownerProfile = plant.profiles;
+    return plantToInterface(plant, ownerProfile);
   });
 }
 
@@ -65,8 +66,8 @@ export async function getPlantById(id: string): Promise<Plant> {
   
   if (error) throw error;
   
-  const owner = data.profiles as unknown as Profile;
-  return plantToInterface(data, owner?.name);
+  const ownerProfile = data.profiles;
+  return plantToInterface(data, ownerProfile);
 }
 
 export async function getUserPlants(userId: string): Promise<Plant[]> {
@@ -169,8 +170,8 @@ export async function updatePlant(id: string, plantData: Partial<Plant>): Promis
   
   if (error) throw error;
   
-  const owner = data.profiles as unknown as Profile;
-  return plantToInterface(data, owner?.name);
+  const ownerProfile = data.profiles;
+  return plantToInterface(data, ownerProfile);
 }
 
 export async function deletePlant(id: string): Promise<void> {

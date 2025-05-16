@@ -31,7 +31,6 @@ const PlantDetail = () => {
           // Fetch owner details
           if (fetchedPlant.owner) {
             try {
-              // Get the owner ID from the plant data
               const ownerId = fetchedPlant.owner;
               console.log("Fetching owner with ID:", ownerId);
               
@@ -40,14 +39,12 @@ const PlantDetail = () => {
               setOwner(plantOwner);
             } catch (ownerError) {
               console.error("Error fetching plant owner:", ownerError);
-              // Create fallback owner information in case of error
-              if (fetchedPlant.owner) {
-                setOwner({
-                  id: fetchedPlant.owner,
-                  name: fetchedPlant.ownerName || 'Неизвестный пользователь',
-                  profileImageUrl: null
-                });
-              }
+              // Only create fallback if owner ID exists but fetch failed
+              setOwner({
+                id: fetchedPlant.owner,
+                name: fetchedPlant.ownerName || 'Неизвестный пользователь',
+                profileImageUrl: null
+              });
             }
           }
 
