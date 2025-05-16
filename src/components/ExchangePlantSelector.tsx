@@ -22,7 +22,9 @@ const ExchangePlantSelector = ({ userId, selectedPlants, onSelectionChange, onCl
   useEffect(() => {
     const fetchUserPlants = async () => {
       try {
+        console.log('Fetching plants for user:', userId);
         const plants = await getUserPlants(userId);
+        console.log('Fetched plants:', plants);
         setUserPlants(plants);
         setLoading(false);
       } catch (error) {
@@ -42,9 +44,9 @@ const ExchangePlantSelector = ({ userId, selectedPlants, onSelectionChange, onCl
     }
   };
   
-  const handleSave = () => {
+  useEffect(() => {
     onSelectionChange(selection);
-  };
+  }, [selection, onSelectionChange]);
 
   if (loading) {
     return (

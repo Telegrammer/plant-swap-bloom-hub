@@ -23,12 +23,15 @@ export function CreateExchangeDialog({ isOpen, onClose, onCreateExchange }: Crea
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(true);
   
-  const currentUserId = '1';
+  // В реальном приложении этот ID должен приходить из контекста аутентификации
+  // Для демонстрации используем фиксированное значение
+  const currentUserId = 'aaf63eee-2854-43c6-9a4b-cc0cd9aed4da';
   
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const fetchedUsers = await getUsers();
+        // Фильтруем список пользователей, исключая текущего пользователя
         const otherUsers = fetchedUsers.filter(user => user.id !== currentUserId);
         setUsers(otherUsers);
         setLoading(false);

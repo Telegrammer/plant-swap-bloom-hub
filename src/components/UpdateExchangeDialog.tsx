@@ -21,6 +21,7 @@ export function UpdateExchangeDialog({
   onUpdateExchange 
 }: UpdateExchangeDialogProps) {
   const [selectedPlants, setSelectedPlants] = useState<string[]>([]);
+  const currentUserId = 'aaf63eee-2854-43c6-9a4b-cc0cd9aed4da'; // В реальном приложении из контекста аутентификации
   
   useEffect(() => {
     if (exchange) {
@@ -51,7 +52,7 @@ export function UpdateExchangeDialog({
         </DialogHeader>
         
         <ExchangePlantSelector 
-          userId="1" // Current user ID - in real app would be dynamic
+          userId={currentUserId}
           selectedPlants={selectedPlants}
           onSelectionChange={setSelectedPlants}
           onClose={onClose}
