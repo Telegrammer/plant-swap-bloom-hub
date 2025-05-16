@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getUserPlants } from '@/api/plants';
@@ -118,7 +119,7 @@ export function CreateExchangeDialog({ isOpen, onClose, onCreateExchange }: Crea
             
             <div className="flex justify-between mt-4">
               <Button variant="outline" onClick={handleBack}>Назад</Button>
-              <Button onClick={handleSubmit}>Создать обмен</Button>
+              <Button onClick={handleSubmit}>Сохранить</Button>
             </div>
           </div>
         )}

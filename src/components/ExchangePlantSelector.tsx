@@ -44,7 +44,6 @@ const ExchangePlantSelector = ({ userId, selectedPlants, onSelectionChange, onCl
   
   const handleSave = () => {
     onSelectionChange(selection);
-    onClose();
   };
 
   if (loading) {
@@ -91,14 +90,9 @@ const ExchangePlantSelector = ({ userId, selectedPlants, onSelectionChange, onCl
         </Table>
       ) : (
         <div className="text-center p-4 bg-gray-50 rounded-md">
-          <p className="text-gray-600">У вас пока нет растений для обмена.</p>
+          <p className="text-gray-600">У вас пока нет растений для обмена. Добавьте растения в свою коллекцию.</p>
         </div>
       )}
-      
-      <div className="flex justify-end gap-2 mt-4">
-        <Button variant="outline" onClick={onClose}>Отмена</Button>
-        <Button onClick={handleSave}>Сохранить</Button>
-      </div>
     </div>
   );
 };
