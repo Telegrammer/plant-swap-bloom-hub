@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plant } from '@/api/plants';
+import { useToast } from "@/hooks/use-toast";
 
 interface ExchangePlantSelectorProps {
   userId: string;
@@ -18,6 +19,7 @@ const ExchangePlantSelector = ({ userId, selectedPlants, onSelectionChange, onCl
   const [userPlants, setUserPlants] = useState<Plant[]>([]);
   const [loading, setLoading] = useState(true);
   const [selection, setSelection] = useState<string[]>(selectedPlants);
+  const { toast } = useToast();
   
   useEffect(() => {
     const fetchUserPlants = async () => {
@@ -25,9 +27,14 @@ const ExchangePlantSelector = ({ userId, selectedPlants, onSelectionChange, onCl
         console.log('Fetching plants for user:', userId);
         const plants = await getUserPlants(userId);
         console.log('Fetched plants:', plants);
-        setUserPlants(plants);
+        setUserPlants(plants || []);
       } catch (error) {
         console.error('Failed to fetch user plants', error);
+        toast({
+          title: "Ошибка загрузки",
+          description: "Не удалось загрузить растения пользователя",
+          variant: "destructive"
+        });
       } finally {
         setLoading(false);
       }
@@ -38,7 +45,7 @@ const ExchangePlantSelector = ({ userId, selectedPlants, onSelectionChange, onCl
     } else {
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, toast]);
   
   const toggleSelection = (plantId: string) => {
     if (selection.includes(plantId)) {
@@ -99,6 +106,11 @@ const ExchangePlantSelector = ({ userId, selectedPlants, onSelectionChange, onCl
           <p className="text-gray-600">У вас пока нет растений для обмена. Добавьте растения в свою коллекцию.</p>
         </div>
       )}
+
+      <div className="flex justify-end mt-4">
+        <Button onClick={onClose} variant="outline" className="mr-2">Отмена</Button>
+        <Button onClick={onClose}>Подтвердить выбор</Button>
+      </div>
     </div>
   );
 };

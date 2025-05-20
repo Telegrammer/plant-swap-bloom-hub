@@ -10,8 +10,23 @@ import NotFound from './pages/NotFound';
 import { Toaster } from './components/ui/toaster';
 import { ChatBot } from './components/chat/ChatBot';
 import './App.css';
+import { useEffect, useState } from 'react';
+import { supabase } from './integrations/supabase/client';
 
 function App() {
+  // Проверка аутентификации при загрузке приложения
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log("Auth state changed:", event, session);
+      }
+    );
+
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
+  }, []);
+
   return (
     <Router>
       <Routes>

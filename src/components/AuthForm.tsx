@@ -16,6 +16,7 @@ export const AuthForm = ({ mode, onSuccess }: AuthFormProps) => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
+  const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   
@@ -31,7 +32,8 @@ export const AuthForm = ({ mode, onSuccess }: AuthFormProps) => {
           options: {
             data: {
               name,
-              location
+              location,
+              phone
             }
           }
         });
@@ -92,6 +94,17 @@ export const AuthForm = ({ mode, onSuccess }: AuthFormProps) => {
               placeholder="Укажите ваш город"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="phone">Телефон</Label>
+            <Input
+              id="phone"
+              type="tel"
+              placeholder="+7 (XXX) XXX-XX-XX"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
             />
           </div>
         </>

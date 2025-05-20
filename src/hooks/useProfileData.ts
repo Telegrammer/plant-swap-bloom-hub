@@ -3,20 +3,28 @@ import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { getUserById, getCurrentUser, User } from '@/api/users';
 import { getUserPlants, createPlant, deletePlant, Plant } from '@/api/plants';
+import { supabase } from '@/integrations/supabase/client';
 
 export function useProfileData(userId?: string) {
   const [user, setUser] = useState<User | null>(null);
   const [userPlants, setUserPlants] = useState<Plant[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isOwnProfile, setIsOwnProfile] = useState(false);
   const { toast } = useToast();
-  
-  const isOwnProfile = !userId;
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
-        let userData: User | null;
+        
+        // Сначала проверяем текущего пользователя
+        const { data: { session } } = await supabase.auth.getSession();
+        const currentUserId = session?.user?.id;
+        
+        // Определяем, является ли это профилем текущего пользователя
+        setIsOwnProfile((!userId && !!currentUserId) || (userId === currentUserId));
+        
+        let userData: User | null = null;
         let plantData: Plant[] = [];
         
         if (userId) {
@@ -32,11 +40,12 @@ export function useProfileData(userId?: string) {
             console.error('Error fetching user by ID:', error);
             userData = null;
           }
-        } else {
+        } else if (currentUserId) {
           console.log('Fetching current user profile');
           userData = await getCurrentUser();
           if (userData) {
             plantData = await getUserPlants(userData.id);
+            console.log('Fetched plants data:', plantData);
           }
         }
         

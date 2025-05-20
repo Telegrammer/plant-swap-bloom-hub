@@ -1,6 +1,6 @@
 
-import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import { useToast } from "@/hooks/use-toast";
 import { AddPlantDialog } from '@/components/AddPlantDialog';
@@ -10,14 +10,32 @@ import UserPlantsGrid from '@/components/profile/UserPlantsGrid';
 import { EditProfileDialog } from '@/components/profile/EditProfileDialog';
 import { useProfileData } from '@/hooks/useProfileData';
 import { User } from '@/api/users';
+import { supabase } from '@/integrations/supabase/client';
 
 const Profile = () => {
-  // Используем параметр userId вместо id для четкости
   const { userId } = useParams();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [deleteDialogState, setDeleteDialogState] = useState({ isOpen: false, plantId: '', plantName: '' });
   const [isEditProfileDialogOpen, setIsEditProfileDialogOpen] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
+  
+  // Проверяем аутентификацию
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!data.session && !userId) {
+        toast({
+          title: "Требуется авторизация",
+          description: "Пожалуйста, войдите в систему",
+          variant: "destructive"
+        });
+        navigate('/auth');
+      }
+    };
+    
+    checkAuth();
+  }, [userId, navigate, toast]);
   
   // Передаем userId как параметр в хук useProfileData
   const { 
