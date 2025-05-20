@@ -26,14 +26,18 @@ const ExchangePlantSelector = ({ userId, selectedPlants, onSelectionChange, onCl
         const plants = await getUserPlants(userId);
         console.log('Fetched plants:', plants);
         setUserPlants(plants);
-        setLoading(false);
       } catch (error) {
         console.error('Failed to fetch user plants', error);
+      } finally {
         setLoading(false);
       }
     };
     
-    fetchUserPlants();
+    if (userId) {
+      fetchUserPlants();
+    } else {
+      setLoading(false);
+    }
   }, [userId]);
   
   const toggleSelection = (plantId: string) => {

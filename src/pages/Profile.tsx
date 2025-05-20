@@ -12,12 +12,14 @@ import { useProfileData } from '@/hooks/useProfileData';
 import { User } from '@/api/users';
 
 const Profile = () => {
-  const { id } = useParams();
+  // Используем параметр userId вместо id для четкости
+  const { userId } = useParams();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [deleteDialogState, setDeleteDialogState] = useState({ isOpen: false, plantId: '', plantName: '' });
   const [isEditProfileDialogOpen, setIsEditProfileDialogOpen] = useState(false);
   const { toast } = useToast();
   
+  // Передаем userId как параметр в хук useProfileData
   const { 
     user, 
     userPlants, 
@@ -26,7 +28,7 @@ const Profile = () => {
     handleAddPlant,
     handleDeletePlant,
     setUser
-  } = useProfileData(id);
+  } = useProfileData(userId);
 
   const handleOpenDeleteDialog = (plantId, plantName) => {
     setDeleteDialogState({

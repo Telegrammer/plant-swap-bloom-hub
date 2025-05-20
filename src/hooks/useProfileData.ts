@@ -17,17 +17,26 @@ export function useProfileData(userId?: string) {
       try {
         setLoading(true);
         let userData: User | null;
-        let plantData: Plant[];
+        let plantData: Plant[] = [];
         
         if (userId) {
-          userData = await getUserById(userId);
-          plantData = await getUserPlants(userId);
+          console.log('Fetching profile for user ID:', userId);
+          try {
+            userData = await getUserById(userId);
+            console.log('Fetched user data:', userData);
+            if (userData) {
+              plantData = await getUserPlants(userData.id);
+              console.log('Fetched plants data:', plantData);
+            }
+          } catch (error) {
+            console.error('Error fetching user by ID:', error);
+            userData = null;
+          }
         } else {
+          console.log('Fetching current user profile');
           userData = await getCurrentUser();
           if (userData) {
             plantData = await getUserPlants(userData.id);
-          } else {
-            plantData = [];
           }
         }
         
