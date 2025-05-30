@@ -10,7 +10,7 @@ const PORT = 3001;
 // Middleware
 app.use(express.json());
 app.use(cors({
-  origin: 'http://YOUR_IP_ADDRESS:8080', // Замените YOUR_IP_ADDRESS на ваш реальный IP
+  origin: 'http://localhost:8080',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));

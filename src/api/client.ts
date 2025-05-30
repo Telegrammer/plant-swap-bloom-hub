@@ -1,5 +1,6 @@
+
 // Base API configuration and helper functions
-const API_URL = 'http://YOUR_IP_ADDRESS:3001/api'; // Замените YOUR_IP_ADDRESS на ваш реальный IP
+const API_URL = 'http://localhost:3001/api';
 
 // Generic GET request
 export async function get<T>(endpoint: string): Promise<T> {
